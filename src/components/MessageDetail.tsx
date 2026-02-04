@@ -2,6 +2,7 @@ import { useState } from 'react'
 import Markdown from 'react-markdown'
 import type { ConversationTurn, ContentBlock, ToolResultBlock } from '@/model/types.ts'
 import { ToolCallView } from './ToolCallView.tsx'
+import { CodeBlock } from './CodeBlock.tsx'
 
 type MessageDetailProps = {
   turn: ConversationTurn
@@ -108,12 +109,10 @@ export function MessageDetail({ turn }: MessageDetailProps) {
 
       {showRawJson && (
         <div className="relative">
-          <pre className="text-xs font-mono bg-gray-50 dark:bg-gray-900 rounded p-3 overflow-x-auto max-h-96">
-            {JSON.stringify(turn.records, null, 2)}
-          </pre>
+          <CodeBlock code={JSON.stringify(turn.records, null, 2)} lang="json" />
           <button
             onClick={() => navigator.clipboard.writeText(JSON.stringify(turn.records, null, 2))}
-            className="absolute top-2 right-2 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 bg-white dark:bg-gray-800 px-2 py-1 rounded border border-gray-200 dark:border-gray-600"
+            className="absolute top-2 right-2 z-10 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 bg-white dark:bg-gray-800 px-2 py-1 rounded border border-gray-200 dark:border-gray-600"
           >
             Copy
           </button>
@@ -134,8 +133,20 @@ function ContentBlockView({
 }) {
   if (block.type === 'text') {
     return (
-      <div className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed prose prose-sm dark:prose-invert max-w-none prose-pre:bg-gray-900 prose-pre:text-gray-100 prose-code:text-pink-600 dark:prose-code:text-pink-400 prose-code:before:content-none prose-code:after:content-none">
-        <Markdown>{block.text}</Markdown>
+      <div className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed prose prose-sm dark:prose-invert max-w-none prose-pre:bg-transparent prose-pre:p-0 prose-code:text-pink-600 dark:prose-code:text-pink-400 prose-code:before:content-none prose-code:after:content-none">
+        <Markdown components={{
+          code({ className, children }) {
+            const match = /language-(\w+)/.exec(className ?? '')
+            const code = String(children).replace(/\n$/, '')
+            if (match) {
+              return <CodeBlock code={code} lang={match[1]} />
+            }
+            return <code className={className}>{children}</code>
+          },
+          pre({ children }) {
+            return <>{children}</>
+          },
+        }}>{block.text}</Markdown>
       </div>
     )
   }

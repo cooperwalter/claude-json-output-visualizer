@@ -1,4 +1,6 @@
 import type { ToolUseContentBlock, ToolResultBlock, ToolUseResultMeta } from '@/model/types.ts'
+import { CodeBlock } from '@/components/CodeBlock.tsx'
+import { langFromFilePath } from '@/utils/highlighter.ts'
 
 type ReadResultProps = {
   toolUse: ToolUseContentBlock
@@ -11,6 +13,7 @@ export function ReadResult({ toolUse, toolResult, meta }: ReadResultProps) {
   const startLine = meta?.file?.startLine ?? 1
   const totalLines = meta?.file?.totalLines
   const numLines = meta?.file?.numLines
+  const lang = filePath ? langFromFilePath(filePath) : undefined
 
   return (
     <div className="space-y-2">
@@ -24,9 +27,7 @@ export function ReadResult({ toolUse, toolResult, meta }: ReadResultProps) {
           )}
         </div>
       )}
-      <pre className="text-xs font-mono bg-white dark:bg-gray-900 rounded p-3 overflow-x-auto max-h-96 text-gray-700 dark:text-gray-300 leading-relaxed">
-        {toolResult.content}
-      </pre>
+      <CodeBlock code={toolResult.content} lang={lang} />
     </div>
   )
 }

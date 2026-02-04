@@ -1,4 +1,5 @@
 import type { ToolUseContentBlock, ToolResultBlock } from '@/model/types.ts'
+import { CodeBlock } from '@/components/CodeBlock.tsx'
 
 type BashResultProps = {
   toolUse: ToolUseContentBlock
@@ -11,20 +12,15 @@ export function BashResult({ toolUse, toolResult }: BashResultProps) {
   return (
     <div className="space-y-2">
       {command && (
-        <pre className="text-xs font-mono bg-gray-900 text-green-400 rounded p-3 overflow-x-auto">
-          <span className="text-gray-500">$ </span>
-          {command}
-        </pre>
+        <CodeBlock code={`$ ${command}`} lang="bash" />
       )}
-      <pre
-        className={`text-xs font-mono rounded p-3 overflow-x-auto max-h-96 ${
-          toolResult.is_error
-            ? 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300'
-            : 'bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300'
-        }`}
-      >
-        {toolResult.content}
-      </pre>
+      {toolResult.is_error ? (
+        <pre className="text-xs font-mono rounded p-3 overflow-x-auto max-h-96 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300">
+          {toolResult.content}
+        </pre>
+      ) : (
+        <CodeBlock code={toolResult.content} lang="bash" />
+      )}
     </div>
   )
 }

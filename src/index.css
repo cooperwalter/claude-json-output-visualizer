@@ -1,1 +1,13 @@
 @import "tailwindcss";
+
+.shiki-container pre.shiki {
+  padding: 0.75rem;
+  margin: 0;
+  overflow-x: auto;
+  border-radius: 0.25rem;
+}
+
+.shiki-container pre.shiki code {
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
