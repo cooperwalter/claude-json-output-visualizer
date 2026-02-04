@@ -117,54 +117,54 @@ Build a static single-page application (SPA) that visualizes Claude Code JSONL c
 ## Phase 9: Token Usage Display
 > Analytics panel + per-message usage. Depends on data model and timeline.
 
-- [ ] Build `src/components/TokenSummaryPanel.tsx`: fixed summary bar showing running totals
+- [x] Build `src/components/TokenSummaryPanel.tsx`: fixed summary bar showing running totals
   - Total input tokens, total output tokens
   - Total cache creation tokens, total cache read tokens
   - Cache hit rate as percentage
   - Message count (assistant turns / user turns)
   - Model(s) used (distinct models)
   - Updates progressively during streaming
-- [ ] Build `src/components/TokenUsageDetail.tsx`: per-message expandable usage section (collapsed by default)
+- [x] Build `src/components/TokenUsageDetail.tsx`: per-message expandable usage section (collapsed by default)
   - Compact table: input_tokens, output_tokens, cache_creation_input_tokens, cache_read_input_tokens, ephemeral cache tokens
   - Service tier shown only when non-"standard"
-- [ ] Sub-agent usage: roll sub-agent `totalTokens`/`usage` into aggregate, viewable separately when expanded
-- [ ] Wire aggregate summary to respect active filters (show filtered totals)
-- [ ] Spec: `specs/token-usage-display.md`
+- [x] Sub-agent usage: roll sub-agent `totalTokens`/`usage` into aggregate, viewable separately when expanded
+- [x] Wire aggregate summary to respect active filters (show filtered totals)
+- [x] Spec: `specs/token-usage-display.md`
 
 ## Phase 10: Search & Filtering
 > Advanced feature layer. Depends on timeline and data model indexes.
 
-- [ ] Build `src/components/SearchBar.tsx`: persistent search input above timeline
+- [x] Build `src/components/SearchBar.tsx`: persistent search input above timeline
   - Searches across text content, tool names, tool inputs, tool results, file paths
   - Case-insensitive by default
   - Debounced input (300ms)
   - Match count ("N of M matches")
   - Up/Down arrows or Enter/Shift+Enter to navigate between matches
   - Results highlighted in-place (matched turns auto-expanded)
-- [ ] Build `src/components/FilterBar.tsx`: collapsible filter controls adjacent to search
+- [x] Build `src/components/FilterBar.tsx`: collapsible filter controls adjacent to search
   - Role filter: Assistant only / User only / All
   - Tool name filter: multi-select populated from loaded data
   - Status filter: Errors only / Sub-agent only / Text only
   - Model filter: dropdown from distinct `message.model` values
   - Filters combinable with AND logic
-- [ ] Implement search hook `src/hooks/useSearch.ts`: text matching logic across all content fields
-- [ ] Implement filter hook `src/hooks/useFilters.ts`: filter state management, turn filtering logic
-- [ ] Filtered state: non-matching turns fully hidden, "Showing N of M turns" indicator, "Clear filters" button
-- [ ] Keyboard shortcuts: `/` or `Ctrl+F` to focus search, `Escape` to clear, `Enter`/`Shift+Enter` for next/prev match
-- [ ] No results state: "No matching messages" + suggest clearing filters
-- [ ] Wire token summary panel to reflect only filtered/visible turns
-- [ ] Spec: `specs/search-and-filtering.md`
+- [x] Implement search hook `src/hooks/useSearch.ts`: text matching logic across all content fields
+- [x] Implement filter hook `src/hooks/useFilters.ts`: filter state management, turn filtering logic
+- [x] Filtered state: non-matching turns fully hidden, "Showing N of M turns" indicator, "Clear filters" button
+- [x] Keyboard shortcuts: `/` or `Ctrl+F` to focus search, `Escape` to clear, `Enter`/`Shift+Enter` for next/prev match
+- [x] No results state: "No matching messages" + suggest clearing filters
+- [x] Wire token summary panel to reflect only filtered/visible turns
+- [x] Spec: `specs/search-and-filtering.md`
 
 ## Phase 11: Polish & Integration
 > Final integration, edge cases, performance.
 
-- [ ] End-to-end test: load a real Claude Code JSONL file and verify all features work together
-- [ ] Performance: verify large files (10k+ records) render smoothly with virtualized list if needed
-- [ ] Accessibility: keyboard navigation, ARIA labels, focus management
-- [ ] Error boundaries: wrap major sections in React error boundaries
-- [ ] Responsive layout: ensure usable on smaller viewports
-- [ ] Dark mode support (Tailwind dark: utilities)
-- [ ] Production build verification: `npm run build` produces deployable static output
+- [x] End-to-end test: load a real Claude Code JSONL file and verify all features work together
+- [x] Performance: verify large files (10k+ records) render smoothly with virtualized list if needed
+- [x] Accessibility: keyboard navigation, ARIA labels, focus management
+- [x] Error boundaries: wrap major sections in React error boundaries
+- [x] Responsive layout: ensure usable on smaller viewports
+- [x] Dark mode support (Tailwind dark: utilities)
+- [x] Production build verification: `npm run build` produces deployable static output
 
 ---
 
@@ -198,3 +198,12 @@ Build a static single-page application (SPA) that visualizes Claude Code JSONL c
 - Testing React components requires the `jsdom` environment to be configured
 - `@testing-library/jest-dom` matchers need to be imported in a `test-setup.ts` file that's referenced in the Vitest config
 - The setup file ensures custom matchers like `toBeInTheDocument()` are available in all test files
+
+### ErrorBoundary Component
+- ErrorBoundary component uses class component pattern (React error boundaries don't support function components)
+
+### Token Summary Panel
+- Token summary panel computes aggregates from visible (filtered) records, so filtered views show accurate token counts
+
+### Search and Filter Architecture
+- Search and filter hooks are independent and combined at the App level with AND logic via useMemo

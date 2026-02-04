@@ -11,6 +11,7 @@ import { TokenSummaryPanel } from '@/components/TokenSummaryPanel.tsx'
 import { SearchBar } from '@/components/SearchBar.tsx'
 import { FilterBar } from '@/components/FilterBar.tsx'
 import { ConversationTimeline } from '@/components/ConversationTimeline.tsx'
+import { ErrorBoundary } from '@/components/ErrorBoundary.tsx'
 
 function App() {
   const [state, dispatch] = useAppState()
@@ -76,6 +77,7 @@ function App() {
   }
 
   return (
+    <ErrorBoundary>
     <ConversationProvider state={state} dispatch={dispatch}>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         {state.sessionMeta && (
@@ -126,12 +128,15 @@ function App() {
           </div>
         )}
 
-        <ConversationTimeline
-          turns={visibleTurns}
-          isStreaming={state.status === 'loading'}
-        />
+        <ErrorBoundary>
+          <ConversationTimeline
+            turns={visibleTurns}
+            isStreaming={state.status === 'loading'}
+          />
+        </ErrorBoundary>
       </div>
     </ConversationProvider>
+    </ErrorBoundary>
   )
 }
 
