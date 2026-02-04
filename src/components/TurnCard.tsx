@@ -7,10 +7,11 @@ type TurnCardProps = {
   index: number
   forceExpanded?: boolean
   isCurrentMatch?: boolean
+  isFocused?: boolean
   searchQuery?: string
 }
 
-export function TurnCard({ turn, index, forceExpanded, isCurrentMatch, searchQuery }: TurnCardProps) {
+export function TurnCard({ turn, index, forceExpanded, isCurrentMatch, isFocused, searchQuery }: TurnCardProps) {
   const [userExpanded, setUserExpanded] = useState(false)
   const expanded = userExpanded || (forceExpanded ?? false)
 
@@ -20,6 +21,8 @@ export function TurnCard({ turn, index, forceExpanded, isCurrentMatch, searchQue
       r.type === 'user' && r.message.content.some((b: ToolResultBlock) => b.is_error),
   )
   const isSubAgent = turn.parentToolUseId !== null
+
+  const subAgentType = getSubAgentType(turn)
 
   const model =
     turn.records[0]?.type === 'assistant' ? turn.records[0].message.model : undefined
@@ -31,7 +34,7 @@ export function TurnCard({ turn, index, forceExpanded, isCurrentMatch, searchQue
         isAssistant
           ? 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
           : 'bg-gray-50 dark:bg-gray-850 border-gray-200 dark:border-gray-700 ml-8'
-      } ${hasError ? 'border-red-300 dark:border-red-700' : ''} ${isCurrentMatch ? 'ring-2 ring-blue-500 dark:ring-blue-400' : ''}`}
+      } ${hasError ? 'border-red-300 dark:border-red-700' : ''} ${isCurrentMatch ? 'ring-2 ring-blue-500 dark:ring-blue-400' : ''} ${isFocused ? 'ring-2 ring-indigo-400 dark:ring-indigo-500' : ''}`}
       onClick={() => setUserExpanded(!userExpanded)}
     >
       <div className="px-4 py-3 flex items-center gap-3">
@@ -51,7 +54,7 @@ export function TurnCard({ turn, index, forceExpanded, isCurrentMatch, searchQue
 
         {isSubAgent && (
           <span className="px-1.5 py-0.5 text-xs font-medium rounded bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300 shrink-0">
-            Sub-agent
+            Sub-agent{subAgentType ? `: ${subAgentType}` : ''}
           </span>
         )}
 
@@ -80,14 +83,14 @@ export function TurnCard({ turn, index, forceExpanded, isCurrentMatch, searchQue
 
       {expanded && (
         <div className="border-t border-gray-100 dark:border-gray-700" onClick={(e) => e.stopPropagation()}>
-          <MessageDetail turn={turn} />
+          <MessageDetail turn={turn} searchQuery={searchQuery} />
         </div>
       )}
     </div>
   )
 }
 
-function HighlightedText({ text, query }: { text: string; query: string }) {
+export function HighlightedText({ text, query }: { text: string; query: string }) {
   if (!query.trim()) return <>{text}</>
   const lowerText = text.toLowerCase()
   const lowerQuery = query.toLowerCase()
@@ -145,6 +148,16 @@ function getSummary(turn: ConversationTurn): string {
     }
   }
   return ''
+}
+
+function getSubAgentType(turn: ConversationTurn): string | undefined {
+  for (const block of turn.contentBlocks) {
+    if (block.type === 'tool_use' && block.name === 'Task') {
+      const subType = block.input.subagent_type
+      if (typeof subType === 'string') return subType
+    }
+  }
+  return undefined
 }
 
 function formatModel(model: string): string {

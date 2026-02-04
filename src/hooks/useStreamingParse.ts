@@ -1,7 +1,10 @@
 import { useRef, useCallback, type Dispatch } from 'react'
 import { parseLine } from '@/model/parser.ts'
+import type { RawRecord } from '@/model/types.ts'
 import type { AppAction } from './useAppState.ts'
 import type { SessionMeta } from './useAppState.ts'
+
+const BATCH_SIZE = 50
 
 export function useStreamingParse(dispatch: Dispatch<AppAction>) {
   const abortRef = useRef(false)
@@ -17,11 +20,18 @@ export function useStreamingParse(dispatch: Dispatch<AppAction>) {
 
       const lines = text.split('\n')
       let hasValidRecord = false
+      let batch: RawRecord[] = []
+      let skippedInBatch = 0
 
       for (const line of lines) {
         if (abortRef.current) break
 
         if (pausedRef.current) {
+          if (batch.length > 0 || skippedInBatch > 0) {
+            dispatch({ type: 'RECORDS_BATCH', records: batch, skipped: skippedInBatch })
+            batch = []
+            skippedInBatch = 0
+          }
           await new Promise<void>((resolve) => {
             resumeResolveRef.current = resolve
           })
@@ -32,12 +42,21 @@ export function useStreamingParse(dispatch: Dispatch<AppAction>) {
         const record = parseLine(line)
         if (record) {
           hasValidRecord = true
-          dispatch({ type: 'RECORD_ADDED', record })
+          batch.push(record)
         } else if (line.trim() !== '') {
-          dispatch({ type: 'LINE_SKIPPED' })
+          skippedInBatch++
         }
 
-        await new Promise((resolve) => setTimeout(resolve, 0))
+        if (batch.length >= BATCH_SIZE) {
+          dispatch({ type: 'RECORDS_BATCH', records: batch, skipped: skippedInBatch })
+          batch = []
+          skippedInBatch = 0
+          await new Promise((resolve) => setTimeout(resolve, 0))
+        }
+      }
+
+      if (batch.length > 0 || skippedInBatch > 0) {
+        dispatch({ type: 'RECORDS_BATCH', records: batch, skipped: skippedInBatch })
       }
 
       if (!hasValidRecord && !abortRef.current) {

@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import type { ConversationTurn } from '@/model/types.ts'
 import { TurnCard } from './TurnCard.tsx'
@@ -26,6 +26,7 @@ export function ConversationTimeline({
 }: ConversationTimelineProps) {
   const bottomRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+  const [focusedIndex, setFocusedIndex] = useState(-1)
   const useVirtual = turns.length >= VIRTUALIZATION_THRESHOLD
 
   useEffect(() => {
@@ -43,13 +44,35 @@ export function ConversationTimeline({
     }
   }, [currentMatchId, useVirtual])
 
+  const scrollToTurn = useCallback((index: number) => {
+    const turnId = turns[index]?.messageId
+    if (!turnId) return
+    const el = document.getElementById(`turn-${turnId}`)
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }, [turns])
+
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLSelectElement) {
         return
       }
+      if (e.key === 'ArrowDown' || e.key === 'j') {
+        e.preventDefault()
+        const next = Math.min(focusedIndex + 1, turns.length - 1)
+        setFocusedIndex(next)
+        scrollToTurn(next)
+      }
+      if (e.key === 'ArrowUp' || e.key === 'k') {
+        e.preventDefault()
+        const prev = Math.max(focusedIndex - 1, 0)
+        setFocusedIndex(prev)
+        scrollToTurn(prev)
+      }
       if (e.key === 'Home') {
         e.preventDefault()
+        setFocusedIndex(0)
         if (useVirtual) {
           window.scrollTo({ top: 0, behavior: 'smooth' })
         } else {
@@ -58,6 +81,7 @@ export function ConversationTimeline({
       }
       if (e.key === 'End') {
         e.preventDefault()
+        setFocusedIndex(turns.length - 1)
         if (useVirtual) {
           window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
         } else {
@@ -65,7 +89,7 @@ export function ConversationTimeline({
         }
       }
     },
-    [useVirtual],
+    [useVirtual, focusedIndex, turns.length, scrollToTurn],
   )
 
   useEffect(() => {
@@ -97,6 +121,7 @@ export function ConversationTimeline({
         searchMatchIds={searchMatchIds}
         currentMatchId={currentMatchId}
         searchQuery={searchQuery}
+        focusedIndex={focusedIndex}
       />
     )
   }
@@ -110,10 +135,44 @@ export function ConversationTimeline({
           index={index}
           forceExpanded={searchMatchIds?.has(turn.messageId)}
           isCurrentMatch={turn.messageId === currentMatchId}
+          isFocused={index === focusedIndex}
           searchQuery={searchQuery}
         />
       ))}
       <div ref={bottomRef} />
+      <JumpButtons
+        onJumpTop={() => {
+          setFocusedIndex(0)
+          containerRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
+        }}
+        onJumpBottom={() => {
+          setFocusedIndex(turns.length - 1)
+          bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+        }}
+      />
+    </div>
+  )
+}
+
+function JumpButtons({ onJumpTop, onJumpBottom }: { onJumpTop: () => void; onJumpBottom: () => void }) {
+  return (
+    <div className="fixed bottom-4 right-4 flex flex-col gap-2 z-20">
+      <button
+        onClick={onJumpTop}
+        className="w-10 h-10 rounded-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 shadow-md flex items-center justify-center text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+        title="Jump to top"
+        aria-label="Jump to top"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+      </button>
+      <button
+        onClick={onJumpBottom}
+        className="w-10 h-10 rounded-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 shadow-md flex items-center justify-center text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+        title="Jump to bottom"
+        aria-label="Jump to bottom"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
     </div>
   )
 }
@@ -124,12 +183,14 @@ function VirtualizedTimeline({
   searchMatchIds,
   currentMatchId,
   searchQuery,
+  focusedIndex,
 }: {
   turns: ConversationTurn[]
   isStreaming: boolean
   searchMatchIds?: Set<string>
   currentMatchId?: string
   searchQuery?: string
+  focusedIndex: number
 }) {
   const parentRef = useRef<HTMLDivElement>(null)
   const prevTurnCountRef = useRef(turns.length)
@@ -158,6 +219,12 @@ function VirtualizedTimeline({
       }
     }
   }, [currentMatchId, turns, virtualizer])
+
+  useEffect(() => {
+    if (focusedIndex >= 0) {
+      virtualizer.scrollToIndex(focusedIndex, { align: 'center', behavior: 'smooth' })
+    }
+  }, [focusedIndex, virtualizer])
 
   return (
     <div
@@ -192,6 +259,7 @@ function VirtualizedTimeline({
                 index={virtualRow.index}
                 forceExpanded={searchMatchIds?.has(turn.messageId)}
                 isCurrentMatch={turn.messageId === currentMatchId}
+                isFocused={virtualRow.index === focusedIndex}
                 searchQuery={searchQuery}
               />
             </div>

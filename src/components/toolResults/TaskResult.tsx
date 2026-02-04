@@ -50,20 +50,36 @@ export function TaskResult({ toolUse, toolResult, meta }: TaskResultProps) {
             {showMetadata ? 'Hide' : 'Show'} metadata
           </button>
           {showMetadata && (
-            <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
-              {meta.totalDurationMs !== undefined && (
-                <span>{(meta.totalDurationMs / 1000).toFixed(1)}s</span>
-              )}
-              {meta.totalTokens !== undefined && (
-                <span>{meta.totalTokens.toLocaleString()} tokens</span>
-              )}
-              {meta.totalToolUseCount !== undefined && (
-                <span>{meta.totalToolUseCount} tool calls</span>
-              )}
-              {meta.status && (
-                <span className={meta.status === 'completed' ? 'text-green-600 dark:text-green-400' : ''}>
-                  {meta.status}
-                </span>
+            <div className="space-y-1">
+              <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+                {meta.totalDurationMs !== undefined && (
+                  <span>{(meta.totalDurationMs / 1000).toFixed(1)}s</span>
+                )}
+                {meta.totalTokens !== undefined && (
+                  <span>{meta.totalTokens.toLocaleString()} tokens</span>
+                )}
+                {meta.totalToolUseCount !== undefined && (
+                  <span>{meta.totalToolUseCount} tool calls</span>
+                )}
+                {meta.status && (
+                  <span className={meta.status === 'completed' ? 'text-green-600 dark:text-green-400' : ''}>
+                    {meta.status}
+                  </span>
+                )}
+              </div>
+              {meta.usage && (
+                <div className="grid grid-cols-2 gap-x-4 gap-y-0.5 text-xs text-gray-500 dark:text-gray-400 pl-2">
+                  <span>Input tokens:</span><span>{meta.usage.input_tokens.toLocaleString()}</span>
+                  <span>Output tokens:</span><span>{meta.usage.output_tokens.toLocaleString()}</span>
+                  <span>Cache creation:</span><span>{meta.usage.cache_creation_input_tokens.toLocaleString()}</span>
+                  <span>Cache read:</span><span>{meta.usage.cache_read_input_tokens.toLocaleString()}</span>
+                  {meta.usage.cache_creation?.ephemeral_5m_input_tokens > 0 && (
+                    <><span>Ephemeral 5m:</span><span>{meta.usage.cache_creation.ephemeral_5m_input_tokens.toLocaleString()}</span></>
+                  )}
+                  {meta.usage.cache_creation?.ephemeral_1h_input_tokens > 0 && (
+                    <><span>Ephemeral 1h:</span><span>{meta.usage.cache_creation.ephemeral_1h_input_tokens.toLocaleString()}</span></>
+                  )}
+                </div>
               )}
             </div>
           )}

@@ -24,6 +24,7 @@ export type AppState = {
 export type AppAction =
   | { type: 'LOAD_START'; meta: SessionMeta }
   | { type: 'RECORD_ADDED'; record: RawRecord }
+  | { type: 'RECORDS_BATCH'; records: RawRecord[]; skipped: number }
   | { type: 'LINE_SKIPPED' }
   | { type: 'LOAD_COMPLETE' }
   | { type: 'LOAD_ERROR'; error: string }
@@ -74,6 +75,17 @@ function appReducer(state: AppState, action: AppAction): AppState {
         ...state,
         records,
         ...derived,
+      }
+    }
+
+    case 'RECORDS_BATCH': {
+      const records = [...state.records, ...action.records]
+      const derived = rebuildDerived(records)
+      return {
+        ...state,
+        records,
+        ...derived,
+        skippedLines: state.skippedLines + action.skipped,
       }
     }
 

@@ -3,12 +3,14 @@ import Markdown from 'react-markdown'
 import type { ConversationTurn, ContentBlock, ToolResultBlock } from '@/model/types.ts'
 import { ToolCallView } from './ToolCallView.tsx'
 import { CodeBlock } from './CodeBlock.tsx'
+import { HighlightedText } from './TurnCard.tsx'
 
 type MessageDetailProps = {
   turn: ConversationTurn
+  searchQuery?: string
 }
 
-export function MessageDetail({ turn }: MessageDetailProps) {
+export function MessageDetail({ turn, searchQuery }: MessageDetailProps) {
   const [showRawJson, setShowRawJson] = useState(false)
   const [showMetadata, setShowMetadata] = useState(false)
 
@@ -35,6 +37,7 @@ export function MessageDetail({ turn }: MessageDetailProps) {
           block={block}
           toolResult={block.type === 'tool_use' ? toolResults.get(block.id) : undefined}
           toolResultRecord={block.type === 'tool_use' ? toolResultMetas.get(block.id) : undefined}
+          searchQuery={searchQuery}
         />
       ))}
 
@@ -43,7 +46,7 @@ export function MessageDetail({ turn }: MessageDetailProps) {
           {turn.records[0].message.content.map((block, i) => (
             <div key={i} className="text-sm text-gray-700 dark:text-gray-300">
               <pre className="whitespace-pre-wrap font-mono text-xs bg-gray-50 dark:bg-gray-900 rounded p-3 overflow-x-auto">
-                {block.content}
+                {searchQuery ? <HighlightedText text={block.content} query={searchQuery} /> : block.content}
               </pre>
             </div>
           ))}
@@ -132,12 +135,39 @@ function ContentBlockView({
   block,
   toolResult,
   toolResultRecord,
+  searchQuery,
 }: {
   block: ContentBlock
   toolResult?: ToolResultBlock
   toolResultRecord?: ConversationTurn['records'][number]
+  searchQuery?: string
 }) {
   if (block.type === 'text') {
+    if (searchQuery) {
+      return (
+        <div className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed prose prose-sm dark:prose-invert max-w-none prose-pre:bg-transparent prose-pre:p-0 prose-code:text-pink-600 dark:prose-code:text-pink-400 prose-code:before:content-none prose-code:after:content-none">
+          <Markdown components={{
+            code({ className, children }) {
+              const match = /language-(\w+)/.exec(className ?? '')
+              const code = String(children).replace(/\n$/, '')
+              if (match) {
+                return <CodeBlock code={code} lang={match[1]} />
+              }
+              return <code className={className}>{children}</code>
+            },
+            pre({ children }) {
+              return <>{children}</>
+            },
+            p({ children }) {
+              return <p><HighlightedTextInChildren query={searchQuery}>{children}</HighlightedTextInChildren></p>
+            },
+            li({ children }) {
+              return <li><HighlightedTextInChildren query={searchQuery}>{children}</HighlightedTextInChildren></li>
+            },
+          }}>{block.text}</Markdown>
+        </div>
+      )
+    }
     return (
       <div className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed prose prose-sm dark:prose-invert max-w-none prose-pre:bg-transparent prose-pre:p-0 prose-code:text-pink-600 dark:prose-code:text-pink-400 prose-code:before:content-none prose-code:after:content-none">
         <Markdown components={{
@@ -169,4 +199,20 @@ function ContentBlockView({
   }
 
   return null
+}
+
+function HighlightedTextInChildren({ children, query }: { children: React.ReactNode; query: string }) {
+  if (!children) return <>{children}</>
+  if (typeof children === 'string') {
+    return <HighlightedText text={children} query={query} />
+  }
+  if (Array.isArray(children)) {
+    return <>{children.map((child, i) => {
+      if (typeof child === 'string') {
+        return <HighlightedText key={i} text={child} query={query} />
+      }
+      return <span key={i}>{child}</span>
+    })}</>
+  }
+  return <>{children}</>
 }

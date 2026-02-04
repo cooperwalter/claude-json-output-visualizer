@@ -259,5 +259,41 @@ Build a static single-page application (SPA) that visualizes Claude Code JSONL c
 - Component tests for `TokenSummaryPanel` verify filtered totals, cache hit rate, sub-agent breakdown
 - Component tests for `TodoWriteResult` verify diff logic: additions, removals, status changes, unchanged items
 
+### Streaming Parse Batching
+- The original streaming parser dispatched `RECORD_ADDED` for every line, triggering a full `rebuildDerived` (indexes + turns) on each dispatch — O(n²) total work for large files
+- Fixed by batching: `useStreamingParse` now collects records into batches of 50 and dispatches a single `RECORDS_BATCH` action per batch
+- The reducer handles `RECORDS_BATCH` by appending all records at once and calling `rebuildDerived` once per batch instead of once per record
+- Skipped line counts are also accumulated in the batch to avoid separate `LINE_SKIPPED` dispatches
+- When paused, the current batch is flushed before waiting
+
+### Keyboard Navigation
+- Up/Down arrow keys (and j/k vim-style) navigate between turns in the timeline
+- `focusedIndex` state tracks which turn is focused (highlighted with indigo ring)
+- In virtualized mode, `virtualizer.scrollToIndex` is used; in non-virtualized mode, `scrollIntoView` is used
+- Home/End keys jump to first/last turn and update `focusedIndex`
+- Keyboard events are ignored when focus is inside input, textarea, or select elements
+
+### Jump to Top / Jump to Bottom Buttons
+- Fixed-position circular buttons in the bottom-right corner (z-20)
+- Arrow chevron SVG icons for clear visual meaning
+- Available in non-virtualized mode; in virtualized mode, keyboard shortcuts (Home/End) serve the same purpose
+
+### Sub-Agent Type in Collapsed View
+- TurnCard now shows sub-agent type from the first Task tool_use block: "Sub-agent: Bash" instead of just "Sub-agent"
+- `getSubAgentType()` helper scans content blocks for Task tool_use and extracts `input.subagent_type`
+
+### Sub-Agent Usage Breakdown in TaskResult
+- When task metadata includes `usage`, the expanded metadata section now shows full token breakdown (input, output, cache creation, cache read, ephemeral tokens)
+- Displayed in a grid layout below the summary metadata (duration, total tokens, tool calls, status)
+
+### Search Highlighting in Expanded Content
+- `HighlightedText` is now exported from TurnCard and reused in MessageDetail
+- When `searchQuery` is active, markdown paragraph and list item text nodes are highlighted via custom `p` and `li` components
+- User record content blocks (tool results) also highlight the search query
+- `HighlightedTextInChildren` helper handles React children nodes that may be strings or arrays
+
 ### Remaining Gaps (Future Work)
 - TokenUsageDetail component: Per-message usage is handled inline in MessageDetail, not as a separate component
+- Search highlighting does not apply inside code blocks within markdown (intentional — highlighting within syntax-highlighted code would conflict with shiki styling)
+- The "Sub-agent only" filter checks for turns containing Task tool_use blocks rather than turns with non-null parentToolUseId (since sub-agent turns are filtered out of the top-level timeline by design)
+- Model name formatting strips the last hyphen-separated segment (assumed date suffix) — could incorrectly truncate non-date-suffixed model names
