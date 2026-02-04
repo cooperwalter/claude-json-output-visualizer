@@ -1,5 +1,6 @@
 import type { ToolUseContentBlock, ToolResultBlock } from '@/model/types.ts'
 import { CodeBlock } from '@/components/CodeBlock.tsx'
+import { FilePathHeader } from '@/components/FilePathHeader.tsx'
 import { langFromFilePath } from '@/utils/highlighter.ts'
 
 type EditResultProps = {
@@ -15,11 +16,7 @@ export function EditResult({ toolUse, toolResult }: EditResultProps) {
 
   return (
     <div className="space-y-2">
-      {filePath && (
-        <div className="text-xs font-mono text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
-          {filePath}
-        </div>
-      )}
+      {filePath && <FilePathHeader filePath={filePath} />}
       {oldString !== undefined && newString !== undefined && (
         <div className="space-y-1">
           <div className="text-xs font-medium text-red-600 dark:text-red-400">Removed:</div>

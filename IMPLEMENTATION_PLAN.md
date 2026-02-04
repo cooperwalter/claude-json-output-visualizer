@@ -205,6 +205,8 @@ Build a static single-page application (SPA) that visualizes Claude Code JSONL c
 ### Token Summary Panel
 - Token summary panel receives all records (including sub-agent) and computes totals, with expandable main vs sub-agent breakdown
 - Ephemeral cache tokens (5-min and 1-hour) are displayed in the expandable details section
+- When filters/search are active, the panel shows filtered totals from visible turns only (via `visibleTurns` and `isFiltered` props)
+- A "Filtered" badge appears when showing filtered totals
 
 ### Search and Filter Architecture
 - Search and filter hooks are independent and combined at the App level with AND logic via useMemo
@@ -240,6 +242,22 @@ Build a static single-page application (SPA) that visualizes Claude Code JSONL c
 - The "Sub-agent" status filter now means "turns that spawn sub-agents" (contains Task tool calls) rather than "turns that are sub-agents"
 - Search operates on top-level turns only; sub-agent content is searchable when the user expands a Task tool call
 
+### Virtualized Scrolling
+- `@tanstack/react-virtual` provides virtualization for large conversations (100+ turns)
+- Below threshold, the original non-virtualized rendering is used for simplicity
+- `useVirtualizer` with `measureElement` handles dynamic row heights (collapsed vs expanded turns)
+- The `eslint-disable react-hooks/incompatible-library` suppression is needed for `useVirtualizer` return value (React Compiler warning, not applicable since project doesn't use React Compiler)
+- Virtualized mode uses a scroll container with `calc(100vh - 180px)` height
+
+### File Path Headers
+- `FilePathHeader` component provides copy-to-clipboard on click for file paths in Read/Edit/Write results
+- Shows "Copy"/"Copied!" feedback on the button
+- Used by `ReadResult`, `EditResult`, and `WriteResult` components
+
+### Component Testing
+- `@testing-library/user-event` is needed for simulating user interactions (click, type)
+- Component tests for `TokenSummaryPanel` verify filtered totals, cache hit rate, sub-agent breakdown
+- Component tests for `TodoWriteResult` verify diff logic: additions, removals, status changes, unchanged items
+
 ### Remaining Gaps (Future Work)
 - TokenUsageDetail component: Per-message usage is handled inline in MessageDetail, not as a separate component
-- Read file path not clickable: Spec says the file path should be a "clickable header" but it is a plain div

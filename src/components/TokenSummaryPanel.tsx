@@ -1,8 +1,10 @@
-import { useState } from 'react'
-import type { RawRecord } from '@/model/types.ts'
+import { useState, useMemo } from 'react'
+import type { RawRecord, ConversationTurn } from '@/model/types.ts'
 
 type TokenSummaryPanelProps = {
   records: RawRecord[]
+  visibleTurns?: ConversationTurn[]
+  isFiltered?: boolean
 }
 
 type AggregateUsage = {
@@ -51,13 +53,29 @@ function computeAggregate(records: RawRecord[]): AggregateUsage {
   return agg
 }
 
-export function TokenSummaryPanel({ records }: TokenSummaryPanelProps) {
+function recordsFromTurns(turns: ConversationTurn[]): RawRecord[] {
+  const records: RawRecord[] = []
+  for (const turn of turns) {
+    for (const record of turn.records) {
+      records.push(record)
+    }
+  }
+  return records
+}
+
+export function TokenSummaryPanel({ records, visibleTurns, isFiltered }: TokenSummaryPanelProps) {
   const [showDetails, setShowDetails] = useState(false)
 
-  const mainRecords = records.filter((r) => r.parent_tool_use_id === null)
-  const subAgentRecords = records.filter((r) => r.parent_tool_use_id !== null)
+  const filteredRecords = useMemo(() => {
+    if (!isFiltered || !visibleTurns) return null
+    return recordsFromTurns(visibleTurns)
+  }, [isFiltered, visibleTurns])
 
-  const total = computeAggregate(records)
+  const displayRecords = filteredRecords ?? records
+  const mainRecords = displayRecords.filter((r) => r.parent_tool_use_id === null)
+  const subAgentRecords = displayRecords.filter((r) => r.parent_tool_use_id !== null)
+
+  const total = computeAggregate(displayRecords)
   const main = computeAggregate(mainRecords)
   const subAgent = subAgentRecords.length > 0 ? computeAggregate(subAgentRecords) : null
 
@@ -72,6 +90,11 @@ export function TokenSummaryPanel({ records }: TokenSummaryPanelProps) {
     <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-2">
       <div className="max-w-4xl mx-auto">
         <div className="flex flex-wrap items-center gap-x-6 gap-y-1 text-xs text-gray-600 dark:text-gray-400">
+          {isFiltered && filteredRecords && (
+            <span className="text-blue-600 dark:text-blue-400 font-medium">
+              Filtered
+            </span>
+          )}
           <span>
             <span className="font-medium text-gray-700 dark:text-gray-300">Input:</span>{' '}
             {total.inputTokens.toLocaleString()}

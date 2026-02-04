@@ -12,16 +12,19 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@tanstack/react-virtual": "^3.13.18",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "react-markdown": "^9.0.0",
     "react-json-view-lite": "^2.0.0",
+    "react-markdown": "^9.0.0",
     "shiki": "^3.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
-    "@testing-library/react": "^16.0.0",
+    "@tailwindcss/vite": "^4.0.0",
     "@testing-library/jest-dom": "^6.0.0",
+    "@testing-library/react": "^16.0.0",
+    "@testing-library/user-event": "^14.6.1",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
@@ -32,7 +35,6 @@
     "globals": "^16.5.0",
     "jsdom": "^26.0.0",
     "tailwindcss": "^4.0.0",
-    "@tailwindcss/vite": "^4.0.0",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
     "vite": "^7.2.4",
