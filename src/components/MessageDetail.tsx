@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import Markdown from 'react-markdown'
 import type { ConversationTurn, ContentBlock, ToolResultBlock } from '@/model/types.ts'
 import { ToolCallView } from './ToolCallView.tsx'
 
@@ -133,8 +134,8 @@ function ContentBlockView({
 }) {
   if (block.type === 'text') {
     return (
-      <div className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap leading-relaxed">
-        {block.text}
+      <div className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed prose prose-sm dark:prose-invert max-w-none prose-pre:bg-gray-900 prose-pre:text-gray-100 prose-code:text-pink-600 dark:prose-code:text-pink-400 prose-code:before:content-none prose-code:after:content-none">
+        <Markdown>{block.text}</Markdown>
       </div>
     )
   }

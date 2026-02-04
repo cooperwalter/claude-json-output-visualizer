@@ -35,7 +35,18 @@ export function useSearch(turns: ConversationTurn[]) {
     return ids
   }, [turns, debouncedQuery])
 
+  const orderedMatchIds = useMemo(() => {
+    return turns
+      .filter((t) => matchingTurnIds.has(t.messageId))
+      .map((t) => t.messageId)
+  }, [turns, matchingTurnIds])
+
   const matchCount = matchingTurnIds.size
+
+  const currentMatchTurnId = useMemo(() => {
+    if (orderedMatchIds.length === 0) return undefined
+    return orderedMatchIds[currentMatchIndex % orderedMatchIds.length]
+  }, [orderedMatchIds, currentMatchIndex])
 
   const nextMatch = useCallback(() => {
     if (matchCount > 0) {
@@ -57,10 +68,12 @@ export function useSearch(turns: ConversationTurn[]) {
 
   return {
     query,
+    debouncedQuery,
     setQuery: handleQueryChange,
     matchingTurnIds,
     matchCount,
     currentMatchIndex,
+    currentMatchTurnId,
     nextMatch,
     prevMatch,
     clearSearch,

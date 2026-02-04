@@ -5,10 +5,14 @@ import { MessageDetail } from './MessageDetail.tsx'
 type TurnCardProps = {
   turn: ConversationTurn
   index: number
+  forceExpanded?: boolean
+  isCurrentMatch?: boolean
+  searchQuery?: string
 }
 
-export function TurnCard({ turn, index }: TurnCardProps) {
-  const [expanded, setExpanded] = useState(false)
+export function TurnCard({ turn, index, forceExpanded, isCurrentMatch, searchQuery }: TurnCardProps) {
+  const [userExpanded, setUserExpanded] = useState(false)
+  const expanded = userExpanded || (forceExpanded ?? false)
 
   const isAssistant = turn.role === 'assistant'
   const hasError = turn.records.some(
@@ -22,14 +26,15 @@ export function TurnCard({ turn, index }: TurnCardProps) {
 
   return (
     <div
+      id={`turn-${turn.messageId}`}
       className={`rounded-lg border transition-colors cursor-pointer ${
         isAssistant
           ? 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
           : 'bg-gray-50 dark:bg-gray-850 border-gray-200 dark:border-gray-700 ml-8'
       } ${hasError ? 'border-red-300 dark:border-red-700' : ''} ${
         isSubAgent ? 'ml-6 border-l-2 border-l-purple-400 dark:border-l-purple-600' : ''
-      }`}
-      onClick={() => setExpanded(!expanded)}
+      } ${isCurrentMatch ? 'ring-2 ring-blue-500 dark:ring-blue-400' : ''}`}
+      onClick={() => setUserExpanded(!userExpanded)}
     >
       <div className="px-4 py-3 flex items-center gap-3">
         <span className="text-xs text-gray-400 dark:text-gray-500 font-mono w-6 shrink-0 text-right">
@@ -59,7 +64,11 @@ export function TurnCard({ turn, index }: TurnCardProps) {
         )}
 
         <div className="min-w-0 flex-1 text-sm text-gray-700 dark:text-gray-300 truncate">
-          {getSummary(turn)}
+          {searchQuery ? (
+            <HighlightedText text={getSummary(turn)} query={searchQuery} />
+          ) : (
+            getSummary(turn)
+          )}
         </div>
 
         {model && (
@@ -77,6 +86,41 @@ export function TurnCard({ turn, index }: TurnCardProps) {
         </div>
       )}
     </div>
+  )
+}
+
+function HighlightedText({ text, query }: { text: string; query: string }) {
+  if (!query.trim()) return <>{text}</>
+  const lowerText = text.toLowerCase()
+  const lowerQuery = query.toLowerCase()
+  const parts: { text: string; highlight: boolean }[] = []
+  let lastIndex = 0
+
+  let idx = lowerText.indexOf(lowerQuery, lastIndex)
+  while (idx !== -1) {
+    if (idx > lastIndex) {
+      parts.push({ text: text.slice(lastIndex, idx), highlight: false })
+    }
+    parts.push({ text: text.slice(idx, idx + query.length), highlight: true })
+    lastIndex = idx + query.length
+    idx = lowerText.indexOf(lowerQuery, lastIndex)
+  }
+  if (lastIndex < text.length) {
+    parts.push({ text: text.slice(lastIndex), highlight: false })
+  }
+
+  return (
+    <>
+      {parts.map((part, i) =>
+        part.highlight ? (
+          <mark key={i} className="bg-yellow-200 dark:bg-yellow-800 text-inherit rounded-sm px-0.5">
+            {part.text}
+          </mark>
+        ) : (
+          <span key={i}>{part.text}</span>
+        ),
+      )}
+    </>
   )
 }
 

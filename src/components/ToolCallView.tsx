@@ -43,10 +43,27 @@ export function ToolCallView({ toolUse, toolResult, toolResultMeta }: ToolCallVi
         <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
           {toolUse.name}
         </span>
-        {isError && (
-          <span className="px-1.5 py-0.5 text-xs font-medium rounded bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300">
-            Error
+        {!expanded && typeof toolUse.input.file_path === 'string' && (
+          <span className="text-xs text-gray-500 dark:text-gray-400 truncate min-w-0 font-mono">
+            {toolUse.input.file_path}
           </span>
+        )}
+        {!expanded && typeof toolUse.input.command === 'string' && (
+          <span className="text-xs text-gray-500 dark:text-gray-400 truncate min-w-0 font-mono">
+            $ {toolUse.input.command.length > 60 ? toolUse.input.command.slice(0, 60) + '...' : toolUse.input.command}
+          </span>
+        )}
+        {isError && (
+          <>
+            <span className="px-1.5 py-0.5 text-xs font-medium rounded bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300">
+              Error
+            </span>
+            {!expanded && toolResult && (
+              <span className="text-xs text-red-600 dark:text-red-400 truncate min-w-0">
+                {toolResult.content.length > 80 ? toolResult.content.slice(0, 80) + '...' : toolResult.content}
+              </span>
+            )}
+          </>
         )}
         {isPending && (
           <span className="text-xs text-gray-400 dark:text-gray-500 animate-pulse">
@@ -66,19 +83,39 @@ export function ToolCallView({ toolUse, toolResult, toolResultMeta }: ToolCallVi
             <summary className="cursor-pointer text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
               Input Parameters
             </summary>
-            <pre className="mt-1 font-mono bg-white dark:bg-gray-900 rounded p-2 overflow-x-auto text-gray-700 dark:text-gray-300">
-              {JSON.stringify(toolUse.input, null, 2)}
-            </pre>
+            <div className="relative">
+              <pre className="mt-1 font-mono bg-white dark:bg-gray-900 rounded p-2 overflow-x-auto text-gray-700 dark:text-gray-300">
+                {JSON.stringify(toolUse.input, null, 2)}
+              </pre>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  navigator.clipboard.writeText(JSON.stringify(toolUse.input, null, 2))
+                }}
+                className="absolute top-2 right-2 opacity-0 hover:opacity-100 focus:opacity-100 transition-opacity text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 bg-white dark:bg-gray-800 px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-600"
+              >
+                Copy
+              </button>
+            </div>
           </details>
 
           {toolResult && (
-            <div>
+            <div className="relative group/result">
               <ToolResultRenderer
                 toolName={toolUse.name}
                 toolUse={toolUse}
                 toolResult={toolResult}
                 meta={toolResultMeta}
               />
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  navigator.clipboard.writeText(toolResult.content)
+                }}
+                className="absolute top-0 right-0 opacity-0 group-hover/result:opacity-100 focus:opacity-100 transition-opacity text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 bg-white dark:bg-gray-800 px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-600"
+              >
+                Copy result
+              </button>
             </div>
           )}
         </div>

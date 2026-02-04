@@ -55,13 +55,22 @@ function App() {
 
     const meta = { fileName, fileSize, sessionId }
 
+    const recordCount = text.split('\n').filter((line) => {
+      try {
+        const parsed = JSON.parse(line.trim()) as Record<string, unknown>
+        return parsed.type === 'assistant' || parsed.type === 'user'
+      } catch {
+        return false
+      }
+    }).length
+
     parseText(text, meta).then(() => {
       addSession({
         fileName,
         fileSize,
         loadedAt: new Date().toISOString(),
         sessionId,
-        recordCount: state.records.length,
+        recordCount,
       })
     })
   }
@@ -132,6 +141,11 @@ function App() {
           <ConversationTimeline
             turns={visibleTurns}
             isStreaming={state.status === 'loading'}
+            searchMatchIds={search.isActive ? search.matchingTurnIds : undefined}
+            currentMatchId={search.currentMatchTurnId}
+            searchQuery={search.isActive ? search.debouncedQuery : undefined}
+            hasActiveFilters={filterHook.isActive || search.isActive}
+            onClearFilters={() => { filterHook.clearFilters(); search.clearSearch(); }}
           />
         </ErrorBoundary>
       </div>
