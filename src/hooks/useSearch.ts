@@ -91,6 +91,7 @@ function turnMatchesSearch(turn: ConversationTurn, query: string): boolean {
       for (const block of record.message.content) {
         if (toolResultBlockMatchesSearch(block, query)) return true
       }
+      if (record.tool_use_result?.file?.filePath?.toLowerCase().includes(query)) return true
     }
   }
 

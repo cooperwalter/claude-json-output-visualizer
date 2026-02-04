@@ -51,18 +51,28 @@ export function TaskResult({ toolUse, toolResult, meta }: TaskResultProps) {
           </button>
           {showMetadata && (
             <div className="space-y-1">
-              <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+              <div className="flex items-center gap-2 flex-wrap">
                 {meta.totalDurationMs !== undefined && (
-                  <span>{(meta.totalDurationMs / 1000).toFixed(1)}s</span>
+                  <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400">
+                    {(meta.totalDurationMs / 1000).toFixed(1)}s
+                  </span>
                 )}
                 {meta.totalTokens !== undefined && (
-                  <span>{meta.totalTokens.toLocaleString()} tokens</span>
+                  <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
+                    {meta.totalTokens.toLocaleString()} tokens
+                  </span>
                 )}
                 {meta.totalToolUseCount !== undefined && (
-                  <span>{meta.totalToolUseCount} tool calls</span>
+                  <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400">
+                    {meta.totalToolUseCount} tool calls
+                  </span>
                 )}
                 {meta.status && (
-                  <span className={meta.status === 'completed' ? 'text-green-600 dark:text-green-400' : ''}>
+                  <span className={`inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full ${
+                    meta.status === 'completed'
+                      ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300'
+                      : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
+                  }`}>
                     {meta.status}
                   </span>
                 )}

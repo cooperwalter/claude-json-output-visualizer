@@ -112,7 +112,7 @@ export function MessageDetail({ turn, searchQuery }: MessageDetailProps) {
           {model && <div>Model: {model}</div>}
           <div>Session ID: {turn.sessionId}</div>
           {stopReason && <div>Stop Reason: {stopReason}</div>}
-          {turn.parentToolUseId && <div>Parent Tool Use ID: {turn.parentToolUseId}</div>}
+          <div>Parent Tool Use ID: {turn.parentToolUseId ?? 'None'}</div>
         </div>
       )}
 

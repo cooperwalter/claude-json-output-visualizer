@@ -46,6 +46,13 @@ export function ToolCallView({ toolUse, toolResult, toolResultMeta }: ToolCallVi
         {!expanded && typeof toolUse.input.file_path === 'string' && (
           <span className="text-xs text-gray-500 dark:text-gray-400 truncate min-w-0 font-mono">
             {toolUse.input.file_path}
+            {toolResultMeta?.file && toolResultMeta.file.totalLines > 0 && (
+              <span className="text-gray-400 dark:text-gray-500 ml-1">
+                ({toolResultMeta.file.numLines === toolResultMeta.file.totalLines
+                  ? `${toolResultMeta.file.totalLines} lines`
+                  : `${toolResultMeta.file.numLines} of ${toolResultMeta.file.totalLines} lines`})
+              </span>
+            )}
           </span>
         )}
         {!expanded && typeof toolUse.input.command === 'string' && (
@@ -143,7 +150,7 @@ function ToolResultRenderer({
     case 'Edit':
       return <EditResult toolUse={toolUse} toolResult={toolResult} />
     case 'Grep':
-      return <GrepResult toolResult={toolResult} />
+      return <GrepResult toolUse={toolUse} toolResult={toolResult} />
     case 'Glob':
       return <GlobResult toolResult={toolResult} />
     case 'Write':

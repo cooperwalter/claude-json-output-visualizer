@@ -292,6 +292,26 @@ Build a static single-page application (SPA) that visualizes Claude Code JSONL c
 - User record content blocks (tool results) also highlight the search query
 - `HighlightedTextInChildren` helper handles React children nodes that may be strings or arrays
 
+### GrepResult Structured Formatting
+- `GrepResult` now parses grep output into structured lines: file headers, matches (with line numbers), separators, and plain text
+- File path tracking (for showing headers when the file changes between match lines) is done during parsing in `parseGrepOutput()`, not during render, to comply with React's immutability lint rules
+- Falls back to raw `<pre>` display when the output doesn't contain recognizable grep patterns
+
+### Collapsed Tool Call View Enhancements
+- `ToolCallView` collapsed state now shows line count metadata for Read operations via `toolResultMeta.file`
+- Displays "N lines" when all lines are shown, "N of M lines" when truncated
+
+### Search File Path Coverage
+- `useSearch` now checks `record.tool_use_result.file.filePath` in addition to tool result content and tool input JSON
+- This ensures file paths from Read/Edit/Write result metadata are searchable
+
+### Sub-Agent Metadata Chip UI
+- `TaskResult` metadata (duration, tokens, tool calls, status) now renders as pill-shaped chips with distinct color-coding
+- Duration and tool calls use gray chips, token count uses blue, status uses green (for completed) or gray
+
+### MessageDetail Parent Tool Use ID
+- `MessageDetail` metadata section now always shows Parent Tool Use ID field, displaying "None" when null (matching spec requirement)
+
 ### Remaining Gaps (Future Work)
 - TokenUsageDetail component: Per-message usage is handled inline in MessageDetail, not as a separate component
 - Search highlighting does not apply inside code blocks within markdown (intentional — highlighting within syntax-highlighted code would conflict with shiki styling)
