@@ -51,8 +51,9 @@ const initialState: AppState = {
 }
 
 function rebuildDerived(records: RawRecord[]): { turns: ConversationTurn[]; indexes: IndexMaps } {
+  const topLevelRecords = records.filter((r) => r.parent_tool_use_id === null)
   return {
-    turns: groupIntoTurns(records),
+    turns: groupIntoTurns(topLevelRecords),
     indexes: buildIndexes(records),
   }
 }

@@ -113,7 +113,10 @@ function matchesFilters(turn: ConversationTurn, filters: FilterState): boolean {
     if (!hasError) return false
   }
   if (filters.status === 'subagent') {
-    if (turn.parentToolUseId === null) return false
+    const hasTaskToolUse = turn.contentBlocks.some(
+      (b) => b.type === 'tool_use' && b.name === 'Task',
+    )
+    if (!hasTaskToolUse) return false
   }
   if (filters.status === 'text') {
     if (!turn.contentBlocks.some((b) => b.type === 'text')) return false

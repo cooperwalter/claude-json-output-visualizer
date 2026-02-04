@@ -203,7 +203,8 @@ Build a static single-page application (SPA) that visualizes Claude Code JSONL c
 - ErrorBoundary component uses class component pattern (React error boundaries don't support function components)
 
 ### Token Summary Panel
-- Token summary panel computes aggregates from visible (filtered) records, so filtered views show accurate token counts
+- Token summary panel receives all records (including sub-agent) and computes totals, with expandable main vs sub-agent breakdown
+- Ephemeral cache tokens (5-min and 1-hour) are displayed in the expandable details section
 
 ### Search and Filter Architecture
 - Search and filter hooks are independent and combined at the App level with AND logic via useMemo
@@ -229,10 +230,16 @@ Build a static single-page application (SPA) that visualizes Claude Code JSONL c
 - Cannot capture `state.records.length` in `.then()` callback — the closure captures stale state
 - Instead, count records from the raw text before parsing to get an accurate count
 
+### Sub-Agent Nested Timeline Architecture
+- Top-level timeline only shows records with `parent_tool_use_id === null` (filtered in `rebuildDerived`)
+- Sub-agent records are rendered as nested timelines inside `TaskResult` via `useConversation()` context
+- `TaskResult` looks up sub-agent records from `state.indexes.byParentToolUseId` by the tool_use block's id
+- Nested timelines reuse `TurnCard` for recursive nesting — sub-agents spawning sub-agents works automatically
+- Falls back to raw text display if no sub-agent records exist for a given tool_use id
+- The `SubAgentNode` type and `buildSubAgentTree` function exist but are not used — the `byParentToolUseId` index is sufficient
+- The "Sub-agent" status filter now means "turns that spawn sub-agents" (contains Task tool calls) rather than "turns that are sub-agents"
+- Search operates on top-level turns only; sub-agent content is searchable when the user expands a Task tool call
+
 ### Remaining Gaps (Future Work)
-- Sub-agent nested sub-timeline: TaskResult shows metadata and raw content but does not render nested conversations as indented sub-timelines. The `SubAgentNode` type is defined but never used in rendering.
-- Sub-agent usage aggregation: Sub-agent Task results' usage is not aggregated separately from main usage in TokenSummaryPanel
-- Ephemeral cache token display: `cache_creation.ephemeral_5m_input_tokens` and `ephemeral_1h_input_tokens` are typed but never rendered
 - TokenUsageDetail component: Per-message usage is handled inline in MessageDetail, not as a separate component
 - Read file path not clickable: Spec says the file path should be a "clickable header" but it is a plain div
-- Task metadata chips not hidden by default: They are always visible when the Task tool call is expanded

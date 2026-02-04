@@ -31,9 +31,7 @@ export function TurnCard({ turn, index, forceExpanded, isCurrentMatch, searchQue
         isAssistant
           ? 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
           : 'bg-gray-50 dark:bg-gray-850 border-gray-200 dark:border-gray-700 ml-8'
-      } ${hasError ? 'border-red-300 dark:border-red-700' : ''} ${
-        isSubAgent ? 'ml-6 border-l-2 border-l-purple-400 dark:border-l-purple-600' : ''
-      } ${isCurrentMatch ? 'ring-2 ring-blue-500 dark:ring-blue-400' : ''}`}
+      } ${hasError ? 'border-red-300 dark:border-red-700' : ''} ${isCurrentMatch ? 'ring-2 ring-blue-500 dark:ring-blue-400' : ''}`}
       onClick={() => setUserExpanded(!userExpanded)}
     >
       <div className="px-4 py-3 flex items-center gap-3">

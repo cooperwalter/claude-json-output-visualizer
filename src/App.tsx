@@ -29,10 +29,6 @@ function App() {
     return turns
   }, [filterHook.filteredTurns, search.isActive, search.matchingTurnIds])
 
-  const visibleRecords = useMemo(() => {
-    return visibleTurns.flatMap((t) => t.records)
-  }, [visibleTurns])
-
   function handleFileLoaded(text: string, fileName: string, fileSize: number) {
     const lines = text.split('\n')
     const firstValid = lines.find((l) => {
@@ -101,7 +97,7 @@ function App() {
           />
         )}
 
-        <TokenSummaryPanel records={visibleRecords} />
+        <TokenSummaryPanel records={state.records} />
 
         <div className="sticky top-[41px] z-10 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-2 space-y-2">
           <SearchBar
