@@ -207,3 +207,32 @@ Build a static single-page application (SPA) that visualizes Claude Code JSONL c
 
 ### Search and Filter Architecture
 - Search and filter hooks are independent and combined at the App level with AND logic via useMemo
+- Search match IDs are tracked in order (`orderedMatchIds`) so `currentMatchIndex` maps to a specific turn for scroll-to-match
+- `currentMatchTurnId` is computed from the ordered match list for scroll targeting
+
+### Shiki Syntax Highlighting
+- Uses `createHighlighter` singleton pattern — one async initialization, reused across all components
+- `codeToHtml` generates themed HTML with inline styles; rendered via `dangerouslySetInnerHTML`
+- Theme detection checks both `document.documentElement.classList.contains('dark')` and `prefers-color-scheme` media query
+- Language grammars are lazy-loaded by Vite code splitting — only loaded when a file with that extension is displayed
+- `langFromFilePath` utility maps file extensions to shiki language identifiers
+- For react-markdown integration, custom `code` and `pre` components are passed to render fenced code blocks with shiki
+- If language is not loaded or not recognized, falls back to `'text'` (no highlighting)
+- Shiki container styles are set via CSS class `.shiki-container` in `index.css`
+
+### ESLint react-hooks/set-state-in-effect Rule
+- The `react-hooks/set-state-in-effect` rule prevents calling `setState` inside `useEffect`
+- For controlled expansion (e.g., TurnCard `forceExpanded`), derive state from props directly rather than syncing via effects
+- Pattern: `const expanded = userExpanded || (forceExpanded ?? false)` — no effect needed
+
+### Record Count in Recent Sessions
+- Cannot capture `state.records.length` in `.then()` callback — the closure captures stale state
+- Instead, count records from the raw text before parsing to get an accurate count
+
+### Remaining Gaps (Future Work)
+- Sub-agent nested sub-timeline: TaskResult shows metadata and raw content but does not render nested conversations as indented sub-timelines. The `SubAgentNode` type is defined but never used in rendering.
+- Sub-agent usage aggregation: Sub-agent Task results' usage is not aggregated separately from main usage in TokenSummaryPanel
+- Ephemeral cache token display: `cache_creation.ephemeral_5m_input_tokens` and `ephemeral_1h_input_tokens` are typed but never rendered
+- TokenUsageDetail component: Per-message usage is handled inline in MessageDetail, not as a separate component
+- Read file path not clickable: Spec says the file path should be a "clickable header" but it is a plain div
+- Task metadata chips not hidden by default: They are always visible when the Task tool call is expanded
