@@ -49,6 +49,20 @@ export function ToolCallView({ toolUse, toolResult, toolResultMeta, searchQuery 
         <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
           {toolUse.name}
         </span>
+        {!expanded && toolUse.name === 'Task' && typeof toolUse.input.subagent_type === 'string' && (
+          <span className="text-xs text-gray-500 dark:text-gray-400 truncate min-w-0">
+            {searchQuery
+              ? <HighlightedText text={toolUse.input.subagent_type as string} query={searchQuery} />
+              : toolUse.input.subagent_type as string}
+            {typeof toolUse.input.description === 'string' && (
+              <span className="ml-1 text-gray-400 dark:text-gray-500">
+                — {searchQuery
+                  ? <HighlightedText text={(toolUse.input.description as string).length > 80 ? (toolUse.input.description as string).slice(0, 80) + '...' : toolUse.input.description as string} query={searchQuery} />
+                  : ((toolUse.input.description as string).length > 80 ? (toolUse.input.description as string).slice(0, 80) + '...' : toolUse.input.description as string)}
+              </span>
+            )}
+          </span>
+        )}
         {!expanded && typeof toolUse.input.file_path === 'string' && (
           <span className="text-xs text-gray-500 dark:text-gray-400 truncate min-w-0 font-mono">
             {searchQuery ? <HighlightedText text={toolUse.input.file_path as string} query={searchQuery} /> : toolUse.input.file_path as string}

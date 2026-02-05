@@ -151,4 +151,38 @@ describe('ToolCallView', () => {
     expect(marks.length).toBe(1)
     expect(marks[0].textContent).toBe('test')
   })
+
+  it('should show subagent_type and description in collapsed state for Task tool calls', () => {
+    const toolUse = makeToolUse({
+      name: 'Task',
+      input: { subagent_type: 'Bash', description: 'Run unit tests' },
+    })
+    render(<ToolCallView toolUse={toolUse} toolResult={makeToolResult()} />)
+    expect(screen.getByText('Bash')).toBeInTheDocument()
+    expect(screen.getByText(/Run unit tests/)).toBeInTheDocument()
+  })
+
+  it('should truncate long Task description to 80 chars in collapsed state', () => {
+    const longDesc = 'A'.repeat(100)
+    const toolUse = makeToolUse({
+      name: 'Task',
+      input: { subagent_type: 'Explore', description: longDesc },
+    })
+    render(<ToolCallView toolUse={toolUse} toolResult={makeToolResult()} />)
+    expect(screen.getByText('Explore')).toBeInTheDocument()
+    expect(screen.getByText(new RegExp(longDesc.slice(0, 80) + '\\.\\.\\.'))).toBeInTheDocument()
+  })
+
+  it('should highlight Task subagent_type and description when searchQuery matches', () => {
+    const toolUse = makeToolUse({
+      name: 'Task',
+      input: { subagent_type: 'Bash', description: 'Run deploy script' },
+    })
+    const { container } = render(
+      <ToolCallView toolUse={toolUse} toolResult={makeToolResult()} searchQuery="deploy" />,
+    )
+    const marks = container.querySelectorAll('mark')
+    expect(marks.length).toBe(1)
+    expect(marks[0].textContent).toBe('deploy')
+  })
 })

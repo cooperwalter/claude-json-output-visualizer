@@ -450,5 +450,10 @@ Build a static single-page application (SPA) that visualizes Claude Code JSONL c
 - Solution: move non-component utility functions to plain `.ts` files (e.g., `src/utils/formatModel.ts`)
 - This is consistent with the earlier pattern of separating React context creation from provider components
 
+### Task Tool Collapsed Summary
+- The tool-use-visualization spec requires showing `input.subagent_type` and `input.description` in the collapsed summary for Task tool calls
+- `ToolCallView.tsx` now shows subagent_type followed by a truncated description (80 chars) when collapsed
+- Search highlighting applies to both fields via `HighlightedText`
+
 ### Remaining Gaps (Future Work)
 - Search highlighting does not apply inside code blocks within markdown (intentional — highlighting within syntax-highlighted code would conflict with shiki styling)
