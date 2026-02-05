@@ -14,6 +14,7 @@ type MessageDetailProps = {
 export function MessageDetail({ turn, searchQuery }: MessageDetailProps) {
   const [showRawJson, setShowRawJson] = useState(false)
   const [showMetadata, setShowMetadata] = useState(false)
+  const [showTokenUsage, setShowTokenUsage] = useState(false)
 
   const model = turn.records[0]?.type === 'assistant' ? turn.records[0].message.model : undefined
   const usage = turn.records[0]?.type === 'assistant' ? turn.records[0].message.usage : undefined
@@ -54,16 +55,16 @@ export function MessageDetail({ turn, searchQuery }: MessageDetailProps) {
         </div>
       )}
 
-      {usage && (
-        <details className="text-xs text-gray-500 dark:text-gray-400">
-          <summary className="cursor-pointer hover:text-gray-700 dark:hover:text-gray-300">
-            Token Usage
-          </summary>
-          <TokenUsageDetail usage={usage} className="mt-2 gap-y-1 pl-4" />
-        </details>
-      )}
-
       <div className="group/actions flex items-center gap-2 pt-2 border-t border-gray-100 dark:border-gray-700">
+        {usage && (
+          <button
+            onClick={() => setShowTokenUsage(!showTokenUsage)}
+            aria-expanded={showTokenUsage}
+            className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+          >
+            {showTokenUsage ? 'Hide' : 'Show'} Token Usage
+          </button>
+        )}
         <button
           onClick={() => setShowMetadata(!showMetadata)}
           aria-expanded={showMetadata}
@@ -93,6 +94,10 @@ export function MessageDetail({ turn, searchQuery }: MessageDetailProps) {
           <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="5" width="9" height="9" rx="1" /><path d="M5 11H3.5A1.5 1.5 0 012 9.5v-7A1.5 1.5 0 013.5 1h7A1.5 1.5 0 0112 2.5V5" /></svg>
         </button>
       </div>
+
+      {showTokenUsage && usage && (
+        <TokenUsageDetail usage={usage} className="text-xs gap-y-1 pl-4" />
+      )}
 
       {showMetadata && (
         <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1 pl-4">

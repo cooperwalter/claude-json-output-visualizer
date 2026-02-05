@@ -66,9 +66,13 @@ All 11 phases are fully implemented and verified against specs:
 
 ---
 
-## Spec Compliance Audit (v0.0.21)
+## Spec Compliance Audit (v0.0.22)
 
-Full audit of all 9 spec files completed. Gaps resolved in v0.0.21:
+Full audit of all 9 spec files completed. All spec requirements fully implemented.
+
+### Resolved in v0.0.22
+- Fixed build failure: `TokenUsageDetail.tsx` — `cache_creation?.ephemeral_*` properties needed nullish coalescing (`?? 0`) for safe comparison
+- Unified MessageDetail toggle pattern: Token Usage now uses the same button toggle as Metadata and Raw JSON (was inconsistent `<details>` element)
 
 ### Resolved in v0.0.21
 - Search bar now supports Up/Down arrow keys for match navigation (in addition to Enter/Shift+Enter)
@@ -81,4 +85,3 @@ Full audit of all 9 spec files completed. Gaps resolved in v0.0.21:
 ### Low Priority / Cosmetic (remaining)
 - Bash tool results do not differentiate stdout vs stderr (spec line 42: "Command shown as code block + stdout/stderr output") — the JSONL data format does not separate them
 - DefaultResult shows input in a collapsible `<details>` while ToolCallView also has a collapsible input section (minor redundancy)
-- MessageDetail uses button toggles for Raw JSON and Metadata sections while Token Usage uses `<details>` (inconsistent pattern, both functionally equivalent)

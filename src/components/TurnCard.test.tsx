@@ -189,7 +189,7 @@ describe('TurnCard', () => {
     const card = screen.getByText('Hello world').closest('[id^="turn-"]')!
     await user.click(card)
 
-    expect(screen.getByText('Token Usage')).toBeInTheDocument()
+    expect(screen.getByText('Show Token Usage')).toBeInTheDocument()
   })
 
   it('should display abbreviated model name badge on assistant turns in collapsed state', () => {
