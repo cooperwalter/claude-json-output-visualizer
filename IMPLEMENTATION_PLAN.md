@@ -80,6 +80,11 @@ All 11 phases are fully implemented and verified against specs:
 
 Full audit of all 9 spec files completed. All spec requirements fully implemented.
 
+### Resolved in v0.0.29
+- Fixed `ReadResult` truncation indicator to match spec: changed `(lines X-Y of Z)` to `Showing lines X-Y of Z`
+- Added root-level `ErrorBoundary` in `main.tsx` wrapping `<App />` to catch errors during initialization that would otherwise cause a blank white screen
+- Full spec compliance audit of all 9 spec files (451 requirements) — all requirements verified as implemented
+
 ### Resolved in v0.0.28
 - Fixed unhandled promise rejection in `App.tsx` `handleFileLoaded` — added `.catch()` to `parseText` promise chain
 - Eliminated duplicate JSONL parsing — `handleFileLoaded` previously parsed the entire file twice (once to count records, once via `parseText`); now `parseText` returns the record count directly

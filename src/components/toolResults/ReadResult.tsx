@@ -25,7 +25,7 @@ export function ReadResult({ toolUse, toolResult, meta, searchQuery }: ReadResul
           filePath={filePath}
           suffix={totalLines !== undefined && numLines !== undefined && numLines < totalLines ? (
             <span className="text-gray-400 dark:text-gray-500 shrink-0">
-              (lines {startLine}-{startLine + numLines - 1} of {totalLines})
+              Showing lines {startLine}-{startLine + numLines - 1} of {totalLines}
             </span>
           ) : undefined}
         />

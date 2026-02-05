@@ -51,7 +51,7 @@ describe('ReadResult', () => {
         meta={meta}
       />,
     )
-    expect(screen.getByText(/lines 10-29 of 100/)).toBeInTheDocument()
+    expect(screen.getByText(/Showing lines 10-29 of 100/)).toBeInTheDocument()
   })
 
   it('does not show truncation indicator when all lines are shown', () => {
