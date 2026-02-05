@@ -54,6 +54,9 @@ All 11 phases are fully implemented and verified against specs:
 - Vitest requires separate `vitest.config.ts` with `jsdom` environment
 - React 19's `act()` waits for all async state updates (Shiki WASM loading, react-markdown unified pipeline) — tests that expand components rendering `MessageDetail` must mock both `CodeBlock` and `react-markdown` to avoid 5s+ timeouts
 - `TokenSummaryPanel` tests use `fireEvent.click` instead of `userEvent` to avoid `act()` overhead since the component has no async behavior
+- `appReducer` and `initialState` are exported for direct unit testing — the reducer is a pure function, ideal for testing without React rendering
+- `useFilters` tests use `renderHook` from `@testing-library/react` with `act()` for state updates
+- Test generator functions (e.g. `makeAssistantRecord`, `makeUserTurn`) accept partial overrides for flexible fixture creation
 
 ### CodeBlock Line Numbers
 - `CodeBlock` accepts optional `showLineNumbers` and `startLine` props for gutter display
@@ -76,6 +79,14 @@ All 11 phases are fully implemented and verified against specs:
 ## Spec Compliance Audit
 
 Full audit of all 9 spec files completed. All spec requirements fully implemented.
+
+### Resolved in v0.0.28
+- Fixed unhandled promise rejection in `App.tsx` `handleFileLoaded` — added `.catch()` to `parseText` promise chain
+- Eliminated duplicate JSONL parsing — `handleFileLoaded` previously parsed the entire file twice (once to count records, once via `parseText`); now `parseText` returns the record count directly
+- `parseText` return type changed from `Promise<void>` to `Promise<number>` (total valid records parsed)
+- Exported `appReducer` and `initialState` from `useAppState.ts` for direct unit testing
+- Added 36 new tests: `useAppState.test.ts` (14 tests for all reducer actions), `useFilters.test.ts` (15 tests for role/tool/status/model filtering with AND logic), `formatModel.test.ts` (7 tests for model name formatting)
+- Total test count: 203 (up from 167)
 
 ### Resolved in v0.0.27
 - Fixed `TokenSummaryPanel.recordsFromTurns` to recursively collect nested sub-agent records when computing filtered token totals — previously only looked one level deep via `byParentToolUseId`, now uses `collectSubAgentRecords` to walk the full Task→sub-agent tree

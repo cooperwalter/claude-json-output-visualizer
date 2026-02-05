@@ -12,7 +12,7 @@ export function useStreamingParse(dispatch: Dispatch<AppAction>) {
   const resumeResolveRef = useRef<(() => void) | null>(null)
 
   const parseText = useCallback(
-    async (text: string, meta: SessionMeta) => {
+    async (text: string, meta: SessionMeta): Promise<number> => {
       abortRef.current = false
       pausedRef.current = false
 
@@ -22,6 +22,7 @@ export function useStreamingParse(dispatch: Dispatch<AppAction>) {
       let hasValidRecord = false
       let batch: RawRecord[] = []
       let skippedInBatch = 0
+      let totalRecords = 0
 
       for (const line of lines) {
         if (abortRef.current) break
@@ -43,6 +44,7 @@ export function useStreamingParse(dispatch: Dispatch<AppAction>) {
         if (record) {
           hasValidRecord = true
           batch.push(record)
+          totalRecords++
         } else if (line.trim() !== '') {
           skippedInBatch++
         }
@@ -68,6 +70,8 @@ export function useStreamingParse(dispatch: Dispatch<AppAction>) {
       } else if (!abortRef.current) {
         dispatch({ type: 'LOAD_COMPLETE' })
       }
+
+      return totalRecords
     },
     [dispatch],
   )

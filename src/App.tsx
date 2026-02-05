@@ -49,25 +49,19 @@ function App() {
       }
     }
 
-    const meta = { fileName, fileSize, sessionId, loadedAt: new Date().toISOString() }
+    const loadedAt = new Date().toISOString()
+    const meta = { fileName, fileSize, sessionId, loadedAt }
 
-    const recordCount = text.split('\n').filter((line) => {
-      try {
-        const parsed = JSON.parse(line.trim()) as Record<string, unknown>
-        return parsed.type === 'assistant' || parsed.type === 'user'
-      } catch {
-        return false
-      }
-    }).length
-
-    parseText(text, meta).then(() => {
+    parseText(text, meta).then((recordCount) => {
       addSession({
         fileName,
         fileSize,
-        loadedAt: new Date().toISOString(),
+        loadedAt,
         sessionId,
         recordCount,
       })
+    }).catch(() => {
+      /* errors already dispatched as LOAD_ERROR */
     })
   }
 
