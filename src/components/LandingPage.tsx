@@ -88,9 +88,12 @@ export function LandingPage({ recentSessions, onFileLoaded, onClearHistory }: La
         {recentSessions.length > 0 && (
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
             <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-              <h2 className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Recent Sessions
-              </h2>
+              <div>
+                <h2 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Recent Sessions
+                </h2>
+                <p className="text-xs text-gray-400 dark:text-gray-500">Re-load the file to view again</p>
+              </div>
               <button
                 onClick={onClearHistory}
                 className="text-xs text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400"
@@ -102,7 +105,7 @@ export function LandingPage({ recentSessions, onFileLoaded, onClearHistory }: La
               {recentSessions.map((session) => (
                 <li
                   key={session.sessionId + session.loadedAt}
-                  className="px-4 py-3 text-sm"
+                  className="px-4 py-3 text-sm select-none"
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-medium text-gray-900 dark:text-gray-100 truncate">

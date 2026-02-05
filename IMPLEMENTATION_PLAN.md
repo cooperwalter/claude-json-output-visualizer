@@ -66,11 +66,19 @@ All 11 phases are fully implemented and verified against specs:
 
 ---
 
-## Spec Compliance Audit (v0.0.20)
+## Spec Compliance Audit (v0.0.21)
 
-Full audit of all 9 spec files against the implementation. Below are remaining minor gaps not yet addressed:
+Full audit of all 9 spec files completed. Gaps resolved in v0.0.21:
 
-### Low Priority / Cosmetic
+### Resolved in v0.0.21
+- Search bar now supports Up/Down arrow keys for match navigation (in addition to Enter/Shift+Enter)
+- Copy buttons now use clipboard icons instead of text labels per spec ("small copy icon, hidden until hover/focus")
+- `Usage.cache_creation` type is now optional (`cache_creation?: CacheCreation`) — aligns TS type with runtime defensive checks
+- Recent sessions section shows "Re-load the file to view again" hint so users understand items are informational-only
+- TurnCard now scrolls into view on expansion (`scrollIntoView` with `block: 'nearest'`)
+- jsdom `scrollIntoView` guard: check `typeof === 'function'` before calling (jsdom does not implement it)
+
+### Low Priority / Cosmetic (remaining)
 - Bash tool results do not differentiate stdout vs stderr (spec line 42: "Command shown as code block + stdout/stderr output") — the JSONL data format does not separate them
 - DefaultResult shows input in a collapsible `<details>` while ToolCallView also has a collapsible input section (minor redundancy)
 - MessageDetail uses button toggles for Raw JSON and Metadata sections while Token Usage uses `<details>` (inconsistent pattern, both functionally equivalent)

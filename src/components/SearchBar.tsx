@@ -59,6 +59,14 @@ export function SearchBar({
               e.preventDefault()
               onPrevMatch()
             }
+            if (e.key === 'ArrowDown') {
+              e.preventDefault()
+              onNextMatch()
+            }
+            if (e.key === 'ArrowUp') {
+              e.preventDefault()
+              onPrevMatch()
+            }
           }}
           placeholder="Search messages... (/ or Ctrl+F)"
           aria-label="Search conversation messages"
@@ -76,7 +84,7 @@ export function SearchBar({
           <button
             onClick={onPrevMatch}
             className="p-1 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 border border-gray-300 dark:border-gray-600 rounded"
-            title="Previous match (Shift+Enter)"
+            title="Previous match (Shift+Enter or ↑)"
             aria-label="Previous match"
           >
             &#x25B2;
@@ -84,7 +92,7 @@ export function SearchBar({
           <button
             onClick={onNextMatch}
             className="p-1 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 border border-gray-300 dark:border-gray-600 rounded"
-            title="Next match (Enter)"
+            title="Next match (Enter or ↓)"
             aria-label="Next match"
           >
             &#x25BC;

@@ -87,9 +87,10 @@ export function MessageDetail({ turn, searchQuery }: MessageDetailProps) {
             navigator.clipboard.writeText(text)
           }}
           aria-label="Copy message text"
-          className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 opacity-0 group-hover/actions:opacity-100 focus:opacity-100 transition-opacity"
+          title="Copy text"
+          className="text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 opacity-0 group-hover/actions:opacity-100 focus:opacity-100 transition-opacity"
         >
-          Copy text
+          <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="5" width="9" height="9" rx="1" /><path d="M5 11H3.5A1.5 1.5 0 012 9.5v-7A1.5 1.5 0 013.5 1h7A1.5 1.5 0 0112 2.5V5" /></svg>
         </button>
       </div>
 
@@ -112,9 +113,10 @@ export function MessageDetail({ turn, searchQuery }: MessageDetailProps) {
           <button
             onClick={() => navigator.clipboard.writeText(JSON.stringify(turn.records, null, 2))}
             aria-label="Copy raw JSON"
-            className="absolute top-2 right-2 z-10 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 bg-white dark:bg-gray-800 px-2 py-1 rounded border border-gray-200 dark:border-gray-600 opacity-0 group-hover/json:opacity-100 focus:opacity-100 transition-opacity"
+            title="Copy JSON"
+            className="absolute top-2 right-2 z-10 text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 bg-white dark:bg-gray-800 p-1.5 rounded border border-gray-200 dark:border-gray-600 opacity-0 group-hover/json:opacity-100 focus:opacity-100 transition-opacity"
           >
-            Copy
+            <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="5" width="9" height="9" rx="1" /><path d="M5 11H3.5A1.5 1.5 0 012 9.5v-7A1.5 1.5 0 013.5 1h7A1.5 1.5 0 0112 2.5V5" /></svg>
           </button>
         </div>
       )}

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import type { ConversationTurn, ContentBlock, ToolResultBlock } from '@/model/types.ts'
 import { formatModelShort } from '@/utils/formatModel.ts'
 import { MessageDetail } from './MessageDetail.tsx'
@@ -15,6 +15,15 @@ type TurnCardProps = {
 export function TurnCard({ turn, index, forceExpanded, isCurrentMatch, isFocused, searchQuery }: TurnCardProps) {
   const [userExpanded, setUserExpanded] = useState(false)
   const expanded = userExpanded || (forceExpanded ?? false)
+  const cardRef = useRef<HTMLDivElement>(null)
+  const prevExpanded = useRef(expanded)
+
+  useEffect(() => {
+    if (expanded && !prevExpanded.current && cardRef.current && typeof cardRef.current.scrollIntoView === 'function') {
+      cardRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    }
+    prevExpanded.current = expanded
+  }, [expanded])
 
   const isAssistant = turn.role === 'assistant'
   const hasError = turn.records.some(
@@ -30,6 +39,7 @@ export function TurnCard({ turn, index, forceExpanded, isCurrentMatch, isFocused
 
   return (
     <div
+      ref={cardRef}
       id={`turn-${turn.messageId}`}
       role="article"
       aria-label={`${isAssistant ? 'Assistant' : 'User'} message ${index + 1}${hasError ? ', contains error' : ''}${isSubAgent ? ', sub-agent' : ''}`}
