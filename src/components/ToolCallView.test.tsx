@@ -190,4 +190,64 @@ describe('ToolCallView', () => {
     expect(marks.length).toBe(1)
     expect(marks[0].textContent).toBe('deploy')
   })
+
+  describe('copy buttons', () => {
+    it('should copy input parameters JSON to clipboard when copy input button is clicked', async () => {
+      const user = userEvent.setup()
+      const writeText = vi.fn().mockResolvedValue(undefined)
+      Object.defineProperty(navigator, 'clipboard', {
+        value: { writeText },
+        writable: true,
+        configurable: true,
+      })
+
+      const toolInput = { file_path: '/src/main.ts', limit: 100 }
+      const toolUse = makeToolUse({ input: toolInput })
+      render(<ToolCallView toolUse={toolUse} toolResult={makeToolResult()} />)
+
+      const toggleButton = screen.getByRole('button', { name: /Read/i })
+      await user.click(toggleButton)
+
+      const copyInputButton = screen.getByRole('button', { name: 'Copy input parameters' })
+      await user.click(copyInputButton)
+
+      expect(writeText).toHaveBeenCalledWith(JSON.stringify(toolInput, null, 2))
+    })
+
+    it('should copy tool result content string to clipboard when copy result button is clicked', async () => {
+      const user = userEvent.setup()
+      const writeText = vi.fn().mockResolvedValue(undefined)
+      Object.defineProperty(navigator, 'clipboard', {
+        value: { writeText },
+        writable: true,
+        configurable: true,
+      })
+
+      const resultContent = 'File contents here'
+      render(
+        <ToolCallView
+          toolUse={makeToolUse()}
+          toolResult={makeToolResult({ content: resultContent })}
+        />,
+      )
+
+      const toggleButton = screen.getByRole('button', { name: /Read/i })
+      await user.click(toggleButton)
+
+      const copyResultButton = screen.getByRole('button', { name: 'Copy tool result' })
+      await user.click(copyResultButton)
+
+      expect(writeText).toHaveBeenCalledWith(resultContent)
+    })
+
+    it('should not render copy result button when tool result is pending', async () => {
+      const user = userEvent.setup()
+      render(<ToolCallView toolUse={makeToolUse()} />)
+
+      const toggleButton = screen.getByRole('button', { name: /Read/i })
+      await user.click(toggleButton)
+
+      expect(screen.queryByRole('button', { name: 'Copy tool result' })).not.toBeInTheDocument()
+    })
+  })
 })

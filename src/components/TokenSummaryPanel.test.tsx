@@ -371,4 +371,267 @@ describe('TokenSummaryPanel', () => {
     expect(screen.getByText('600')).toBeInTheDocument()
     expect(screen.getByText('300')).toBeInTheDocument()
   })
+
+  describe('filtered mode', () => {
+    it('should show filtered cache creation and cache read tokens from visible turns only', () => {
+      const assistant1 = makeAssistantRecord({
+        uuid: 'a1',
+        message: {
+          ...makeAssistantRecord().message,
+          id: 'msg-1',
+          usage: {
+            input_tokens: 100,
+            output_tokens: 50,
+            cache_creation_input_tokens: 30,
+            cache_read_input_tokens: 40,
+            cache_creation: {
+              ephemeral_5m_input_tokens: 0,
+              ephemeral_1h_input_tokens: 0,
+            },
+            service_tier: 'standard',
+          },
+        },
+      })
+      const assistant2 = makeAssistantRecord({
+        uuid: 'a2',
+        message: {
+          ...makeAssistantRecord().message,
+          id: 'msg-2',
+          usage: {
+            input_tokens: 200,
+            output_tokens: 100,
+            cache_creation_input_tokens: 60,
+            cache_read_input_tokens: 80,
+            cache_creation: {
+              ephemeral_5m_input_tokens: 0,
+              ephemeral_1h_input_tokens: 0,
+            },
+            service_tier: 'standard',
+          },
+        },
+      })
+
+      const allRecords: RawRecord[] = [assistant1, assistant2]
+      const visibleTurns: ConversationTurn[] = [makeTurn([assistant1])]
+
+      render(
+        <TokenSummaryPanel
+          records={allRecords}
+          visibleTurns={visibleTurns}
+          isFiltered={true}
+        />,
+      )
+
+      expect(screen.getByText('Filtered')).toBeInTheDocument()
+      expect(screen.getByText('30')).toBeInTheDocument()
+      expect(screen.getByText('40')).toBeInTheDocument()
+    })
+
+    it('should show filtered message counts reflecting only visible turns', () => {
+      const assistant1 = makeAssistantRecord({
+        uuid: 'a1',
+        message: { ...makeAssistantRecord().message, id: 'msg-1' },
+      })
+      const assistant2 = makeAssistantRecord({
+        uuid: 'a2',
+        message: { ...makeAssistantRecord().message, id: 'msg-2' },
+      })
+      const user1 = makeUserRecord({ uuid: 'u1' })
+
+      const allRecords: RawRecord[] = [assistant1, user1, assistant2]
+      const visibleTurns: ConversationTurn[] = [makeTurn([assistant1])]
+
+      render(
+        <TokenSummaryPanel
+          records={allRecords}
+          visibleTurns={visibleTurns}
+          isFiltered={true}
+        />,
+      )
+
+      expect(screen.getByText('1A / 0U')).toBeInTheDocument()
+    })
+
+    it('should show filtered cache hit rate based on visible turns only', () => {
+      const assistant1 = makeAssistantRecord({
+        uuid: 'a1',
+        message: {
+          ...makeAssistantRecord().message,
+          id: 'msg-1',
+          usage: {
+            input_tokens: 100,
+            output_tokens: 50,
+            cache_creation_input_tokens: 0,
+            cache_read_input_tokens: 100,
+            cache_creation: {
+              ephemeral_5m_input_tokens: 0,
+              ephemeral_1h_input_tokens: 0,
+            },
+            service_tier: 'standard',
+          },
+        },
+      })
+      const assistant2 = makeAssistantRecord({
+        uuid: 'a2',
+        message: {
+          ...makeAssistantRecord().message,
+          id: 'msg-2',
+          usage: {
+            input_tokens: 100,
+            output_tokens: 50,
+            cache_creation_input_tokens: 0,
+            cache_read_input_tokens: 0,
+            cache_creation: {
+              ephemeral_5m_input_tokens: 0,
+              ephemeral_1h_input_tokens: 0,
+            },
+            service_tier: 'standard',
+          },
+        },
+      })
+
+      const allRecords: RawRecord[] = [assistant1, assistant2]
+      const visibleTurns: ConversationTurn[] = [makeTurn([assistant1])]
+
+      render(
+        <TokenSummaryPanel
+          records={allRecords}
+          visibleTurns={visibleTurns}
+          isFiltered={true}
+        />,
+      )
+
+      expect(screen.getByText('50.0%')).toBeInTheDocument()
+    })
+
+    it('should separate main vs sub-agent tokens in More details when filtered includes sub-agents', () => {
+      const topLevel = makeAssistantRecord({
+        uuid: 'a-top',
+        message: {
+          ...makeAssistantRecord().message,
+          id: 'msg-top',
+          content: [{ type: 'tool_use', id: 'task-1', name: 'Task', input: {} }],
+          usage: {
+            input_tokens: 100,
+            output_tokens: 50,
+            cache_creation_input_tokens: 0,
+            cache_read_input_tokens: 0,
+            cache_creation: {
+              ephemeral_5m_input_tokens: 0,
+              ephemeral_1h_input_tokens: 0,
+            },
+            service_tier: 'standard',
+          },
+        },
+      })
+      const subAgent = makeAssistantRecord({
+        uuid: 'a-sub',
+        parent_tool_use_id: 'task-1',
+        message: {
+          ...makeAssistantRecord().message,
+          id: 'msg-sub',
+          usage: {
+            input_tokens: 75,
+            output_tokens: 25,
+            cache_creation_input_tokens: 0,
+            cache_read_input_tokens: 0,
+            cache_creation: {
+              ephemeral_5m_input_tokens: 0,
+              ephemeral_1h_input_tokens: 0,
+            },
+            service_tier: 'standard',
+          },
+        },
+      })
+
+      const allRecords: RawRecord[] = [topLevel, subAgent]
+      const visibleTurns: ConversationTurn[] = [makeTurn([topLevel])]
+      const indexes: IndexMaps = {
+        byUuid: new Map(allRecords.map((r) => [r.uuid, r])),
+        byMessageId: new Map([
+          ['msg-top', [topLevel]],
+          ['msg-sub', [subAgent]],
+        ]),
+        byToolUseId: new Map<string, ToolCallPair>(),
+        byParentToolUseId: new Map([['task-1', [subAgent]]]),
+      }
+
+      render(
+        <TokenSummaryPanel
+          records={allRecords}
+          visibleTurns={visibleTurns}
+          isFiltered={true}
+          indexes={indexes}
+        />,
+      )
+
+      expect(screen.getByText('Filtered')).toBeInTheDocument()
+
+      fireEvent.click(screen.getByText('More'))
+
+      expect(screen.getByText('Main conversation:')).toBeInTheDocument()
+      expect(screen.getByText('Sub-agents:')).toBeInTheDocument()
+    })
+  })
+
+  describe('ephemeral cache tokens', () => {
+    it('should show More button and ephemeral details when ephemeral tokens are present', () => {
+      const records: RawRecord[] = [
+        makeAssistantRecord({
+          uuid: 'a1',
+          message: {
+            ...makeAssistantRecord().message,
+            usage: {
+              input_tokens: 100,
+              output_tokens: 50,
+              cache_creation_input_tokens: 0,
+              cache_read_input_tokens: 0,
+              cache_creation: {
+                ephemeral_5m_input_tokens: 500,
+                ephemeral_1h_input_tokens: 200,
+              },
+              service_tier: 'standard',
+            },
+          },
+        }),
+      ]
+
+      render(<TokenSummaryPanel records={records} />)
+
+      fireEvent.click(screen.getByText('More'))
+
+      expect(screen.getByText('Ephemeral cache:')).toBeInTheDocument()
+      expect(screen.getByText('5-min ephemeral:')).toBeInTheDocument()
+      expect(screen.getByText('500')).toBeInTheDocument()
+      expect(screen.getByText('1-hour ephemeral:')).toBeInTheDocument()
+      expect(screen.getByText('200')).toBeInTheDocument()
+    })
+
+    it('should toggle More/Less button text when clicked', () => {
+      const records: RawRecord[] = [
+        makeAssistantRecord({
+          uuid: 'a1',
+          message: {
+            ...makeAssistantRecord().message,
+            usage: {
+              ...makeAssistantRecord().message.usage,
+              cache_creation: {
+                ephemeral_5m_input_tokens: 100,
+                ephemeral_1h_input_tokens: 0,
+              },
+            },
+          },
+        }),
+      ]
+
+      render(<TokenSummaryPanel records={records} />)
+
+      const moreButton = screen.getByText('More')
+      fireEvent.click(moreButton)
+      expect(screen.getByText('Less')).toBeInTheDocument()
+
+      fireEvent.click(screen.getByText('Less'))
+      expect(screen.getByText('More')).toBeInTheDocument()
+    })
+  })
 })

@@ -22,7 +22,7 @@ All 11 phases are fully implemented and verified against specs:
 - [x] Phase 10: Search & Filtering
 - [x] Phase 11: Polish & Integration
 
-**Current version:** v0.0.35 — 476 tests, all passing. Full spec compliance audit completed.
+**Current version:** v0.0.36 — 498 tests, all passing. Full spec compliance audit completed.
 
 ---
 
@@ -73,6 +73,8 @@ All 11 phases are fully implemented and verified against specs:
 - `DarkModeToggle` tests mock the `useDarkMode` hook to isolate component behavior from theme state logic
 - `SessionHeader` tests mock `DarkModeToggle` to avoid hook dependency chain
 - `App.tsx` integration tests mock `react-markdown`, `CodeBlock`, and `DarkModeToggle`, use `localStorage.clear()` in `beforeEach`, and test the full paste→parse→render→reset flow; `waitFor` is needed because `useStreamingParse` processes batches asynchronously via `setTimeout` yields
+- `navigator.clipboard` is read-only in jsdom — must use `Object.defineProperty(navigator, 'clipboard', { value: { writeText }, writable: true, configurable: true })` instead of `Object.assign(navigator, { clipboard: ... })`
+- VirtualizedTimeline tests use 100 turns to exceed `VIRTUALIZATION_THRESHOLD` — verify by checking `role="feed"` is absent and `overflow: auto` style is present on container
 
 ### Vitest 3.x Mock Typing
 - `vi.fn()` generics changed in Vitest 3.x: use `vi.fn<Signature>()` not `vi.fn<[Args], Return>()`
