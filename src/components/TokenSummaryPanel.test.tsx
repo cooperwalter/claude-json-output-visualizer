@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
 import { TokenSummaryPanel } from './TokenSummaryPanel.tsx'
-import type { RawRecord, ConversationTurn, AssistantRecord, UserRecord } from '@/model/types.ts'
+import type { RawRecord, ConversationTurn, AssistantRecord, UserRecord, IndexMaps, ToolCallPair } from '@/model/types.ts'
 
 function makeAssistantRecord(overrides: Partial<AssistantRecord> = {}): AssistantRecord {
   return {
@@ -281,5 +281,94 @@ describe('TokenSummaryPanel', () => {
 
     expect(screen.getByText('Main conversation:')).toBeInTheDocument()
     expect(screen.getByText('Sub-agents:')).toBeInTheDocument()
+  })
+
+  it('should recursively include nested sub-agent records when filtered', () => {
+    const topLevelAssistant = makeAssistantRecord({
+      uuid: 'a-top',
+      message: {
+        ...makeAssistantRecord().message,
+        id: 'msg-top',
+        content: [{ type: 'tool_use', id: 'task-L1', name: 'Task', input: {} }],
+        usage: {
+          input_tokens: 100,
+          output_tokens: 50,
+          cache_creation_input_tokens: 0,
+          cache_read_input_tokens: 0,
+          service_tier: 'standard',
+        },
+      },
+    })
+
+    const subL1Assistant = makeAssistantRecord({
+      uuid: 'a-L1',
+      parent_tool_use_id: 'task-L1',
+      message: {
+        ...makeAssistantRecord().message,
+        id: 'msg-L1',
+        content: [{ type: 'tool_use', id: 'task-L2', name: 'Task', input: {} }],
+        usage: {
+          input_tokens: 200,
+          output_tokens: 100,
+          cache_creation_input_tokens: 0,
+          cache_read_input_tokens: 0,
+          service_tier: 'standard',
+        },
+      },
+    })
+
+    const subL2Assistant = makeAssistantRecord({
+      uuid: 'a-L2',
+      parent_tool_use_id: 'task-L2',
+      message: {
+        ...makeAssistantRecord().message,
+        id: 'msg-L2',
+        usage: {
+          input_tokens: 300,
+          output_tokens: 150,
+          cache_creation_input_tokens: 0,
+          cache_read_input_tokens: 0,
+          service_tier: 'standard',
+        },
+      },
+    })
+
+    const allRecords: RawRecord[] = [topLevelAssistant, subL1Assistant, subL2Assistant]
+
+    const visibleTurns: ConversationTurn[] = [{
+      messageId: 'msg-top',
+      role: 'assistant',
+      records: [topLevelAssistant],
+      contentBlocks: topLevelAssistant.message.content,
+      parentToolUseId: null,
+      sessionId: 'session-1',
+    }]
+
+    const indexes: IndexMaps = {
+      byUuid: new Map(allRecords.map((r) => [r.uuid, r])),
+      byMessageId: new Map([
+        ['msg-top', [topLevelAssistant]],
+        ['msg-L1', [subL1Assistant]],
+        ['msg-L2', [subL2Assistant]],
+      ]),
+      byToolUseId: new Map<string, ToolCallPair>(),
+      byParentToolUseId: new Map([
+        ['task-L1', [subL1Assistant]],
+        ['task-L2', [subL2Assistant]],
+      ]),
+    }
+
+    render(
+      <TokenSummaryPanel
+        records={allRecords}
+        visibleTurns={visibleTurns}
+        isFiltered={true}
+        indexes={indexes}
+      />,
+    )
+
+    expect(screen.getByText('Filtered')).toBeInTheDocument()
+    expect(screen.getByText('600')).toBeInTheDocument()
+    expect(screen.getByText('300')).toBeInTheDocument()
   })
 })

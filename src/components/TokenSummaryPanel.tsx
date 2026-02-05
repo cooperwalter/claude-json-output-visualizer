@@ -68,6 +68,28 @@ function computeAggregate(records: RawRecord[]): AggregateUsage {
   return agg
 }
 
+function collectSubAgentRecords(
+  parentToolUseId: string,
+  indexes: IndexMaps,
+  seen: Set<string>,
+  records: RawRecord[],
+): void {
+  const subRecords = indexes.byParentToolUseId.get(parentToolUseId)
+  if (!subRecords) return
+  for (const sr of subRecords) {
+    if (seen.has(sr.uuid)) continue
+    seen.add(sr.uuid)
+    records.push(sr)
+    if (sr.type === 'assistant') {
+      for (const block of sr.message.content) {
+        if (block.type === 'tool_use' && block.name === 'Task') {
+          collectSubAgentRecords(block.id, indexes, seen, records)
+        }
+      }
+    }
+  }
+}
+
 function recordsFromTurns(turns: ConversationTurn[], indexes?: IndexMaps): RawRecord[] {
   const records: RawRecord[] = []
   const seen = new Set<string>()
@@ -83,15 +105,7 @@ function recordsFromTurns(turns: ConversationTurn[], indexes?: IndexMaps): RawRe
     if (indexes) {
       for (const block of turn.contentBlocks) {
         if (block.type === 'tool_use' && block.name === 'Task') {
-          const subRecords = indexes.byParentToolUseId.get(block.id)
-          if (subRecords) {
-            for (const sr of subRecords) {
-              if (!seen.has(sr.uuid)) {
-                seen.add(sr.uuid)
-                records.push(sr)
-              }
-            }
-          }
+          collectSubAgentRecords(block.id, indexes, seen, records)
         }
       }
     }

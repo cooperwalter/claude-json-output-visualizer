@@ -62,6 +62,11 @@ All 11 phases are fully implemented and verified against specs:
 - Only `ReadResult` enables line numbers — other tools (Bash, Edit, Raw JSON) do not need them
 - `ReadResult` passes `startLine` from `meta.file.startLine` so partial file reads show correct line offsets
 
+### Spec Interpretation Notes
+- `tech-stack.md` says "react-json-view or custom" for JSON display — the "or custom" permits the current approach of Shiki-highlighted `JSON.stringify` with collapsible sections, which avoids an extra dependency
+- `conversation-timeline.md` says "Sub-agent exchanges: indented under their parent tool_use" — this is implemented as nested timelines inside expanded `TaskResult` components; `search-and-filtering.md` explicitly confirms sub-agent turns are "rendered as nested timelines inside their parent Task tool call, not as top-level turns"
+- `TokenSummaryPanel.collectSubAgentRecords` recursively walks the Task→sub-agent tree so deeply nested sub-agents are included in filtered token totals
+
 ### Known Limitations (Intentional)
 - Search highlighting does not apply inside code blocks within markdown (would conflict with shiki styling)
 - Build produces large chunks from Shiki language grammars (code-split via dynamic imports)
@@ -71,6 +76,9 @@ All 11 phases are fully implemented and verified against specs:
 ## Spec Compliance Audit
 
 Full audit of all 9 spec files completed. All spec requirements fully implemented.
+
+### Resolved in v0.0.27
+- Fixed `TokenSummaryPanel.recordsFromTurns` to recursively collect nested sub-agent records when computing filtered token totals — previously only looked one level deep via `byParentToolUseId`, now uses `collectSubAgentRecords` to walk the full Task→sub-agent tree
 
 ### Resolved in v0.0.26
 - Added tool-type-specific SVG icons via `ToolIcon` component — each tool (Read, Write, Edit, Bash, Grep, Glob, Task, TodoWrite, WebFetch) now has a distinct icon in both `ToolCallView` collapsed state and `TurnCard` content type indicators, matching the spec requirement for `[Icon] ToolName [badge]`
