@@ -13,6 +13,10 @@ import type {
 } from '@/model/types.ts'
 import type { AppState } from '@/hooks/useAppState.ts'
 
+vi.mock('react-markdown', () => ({
+  default: ({ children }: { children: string }) => <div data-testid="markdown">{children}</div>,
+}))
+
 vi.mock('@/components/CodeBlock.tsx', () => ({
   CodeBlock: ({ code }: { code: string }) => <pre data-testid="code-block">{code}</pre>,
 }))

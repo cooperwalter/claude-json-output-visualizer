@@ -52,6 +52,8 @@ All 11 phases are fully implemented and verified against specs:
 - `CodeBlock` mock renders as `<pre data-testid="code-block">` to isolate async Shiki dependency
 - TaskResult tests mock `ConversationContext` to provide `IndexMaps`
 - Vitest requires separate `vitest.config.ts` with `jsdom` environment
+- React 19's `act()` waits for all async state updates (Shiki WASM loading, react-markdown unified pipeline) — tests that expand components rendering `MessageDetail` must mock both `CodeBlock` and `react-markdown` to avoid 5s+ timeouts
+- `TokenSummaryPanel` tests use `fireEvent.click` instead of `userEvent` to avoid `act()` overhead since the component has no async behavior
 
 ### CodeBlock Line Numbers
 - `CodeBlock` accepts optional `showLineNumbers` and `startLine` props for gutter display
@@ -69,6 +71,11 @@ All 11 phases are fully implemented and verified against specs:
 ## Spec Compliance Audit (v0.0.23)
 
 Full audit of all 9 spec files completed. All spec requirements fully implemented.
+
+### Resolved in v0.0.24
+- Fixed 4 test timeouts caused by React 19 `act()` waiting for Shiki WASM loading and react-markdown unified pipeline
+- Added `CodeBlock` and `react-markdown` mocks to ToolCallView, TurnCard, and TaskResult tests
+- Switched TokenSummaryPanel tests from `userEvent` to `fireEvent.click` for synchronous-only component
 
 ### Resolved in v0.0.23
 - ConversationTimeline: `outline-none` + `tabIndex={-1}` on feed container so Escape→focus-timeline works

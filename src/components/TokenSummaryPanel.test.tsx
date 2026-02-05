@@ -1,5 +1,4 @@
-import { render, screen } from '@testing-library/react'
-import { userEvent } from '@testing-library/user-event'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
 import { TokenSummaryPanel } from './TokenSummaryPanel.tsx'
 import type { RawRecord, ConversationTurn, AssistantRecord, UserRecord } from '@/model/types.ts'
@@ -249,8 +248,7 @@ describe('TokenSummaryPanel', () => {
     expect(screen.queryByText('Tier:')).not.toBeInTheDocument()
   })
 
-  it('should show More button and expandable details when sub-agent records exist', async () => {
-    const user = userEvent.setup()
+  it('should show More button and expandable details when sub-agent records exist', () => {
     const records: RawRecord[] = [
       makeAssistantRecord({ uuid: 'a1' }),
       makeAssistantRecord({
@@ -279,7 +277,7 @@ describe('TokenSummaryPanel', () => {
     const moreButton = screen.getByText('More')
     expect(moreButton).toBeInTheDocument()
 
-    await user.click(moreButton)
+    fireEvent.click(moreButton)
 
     expect(screen.getByText('Main conversation:')).toBeInTheDocument()
     expect(screen.getByText('Sub-agents:')).toBeInTheDocument()

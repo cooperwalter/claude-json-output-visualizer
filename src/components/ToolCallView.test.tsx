@@ -1,8 +1,12 @@
 import { render, screen } from '@testing-library/react'
 import { userEvent } from '@testing-library/user-event'
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { ToolCallView } from './ToolCallView.tsx'
 import type { ToolUseContentBlock, ToolResultBlock, ToolUseResultMeta } from '@/model/types.ts'
+
+vi.mock('@/components/CodeBlock.tsx', () => ({
+  CodeBlock: ({ code }: { code: string }) => <pre data-testid="code-block">{code}</pre>,
+}))
 
 function makeToolUse(overrides: Partial<ToolUseContentBlock> = {}): ToolUseContentBlock {
   return {

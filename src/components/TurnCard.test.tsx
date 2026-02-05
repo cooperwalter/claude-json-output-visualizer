@@ -1,9 +1,17 @@
 import { render, screen } from '@testing-library/react'
 import { userEvent } from '@testing-library/user-event'
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { TurnCard, HighlightedText } from './TurnCard.tsx'
 import { formatModelShort } from '@/utils/formatModel.ts'
 import type { ConversationTurn, AssistantRecord, UserRecord, ContentBlock } from '@/model/types.ts'
+
+vi.mock('react-markdown', () => ({
+  default: ({ children }: { children: string }) => <div data-testid="markdown">{children}</div>,
+}))
+
+vi.mock('@/components/CodeBlock.tsx', () => ({
+  CodeBlock: ({ code }: { code: string }) => <pre data-testid="code-block">{code}</pre>,
+}))
 
 function makeAssistantRecord(overrides: Partial<AssistantRecord> = {}): AssistantRecord {
   return {
