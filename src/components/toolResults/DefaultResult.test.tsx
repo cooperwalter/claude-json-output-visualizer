@@ -1,50 +1,37 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { DefaultResult } from './DefaultResult.tsx'
-import type { ToolUseContentBlock, ToolResultBlock } from '@/model/types.ts'
-
-function makeToolUse(name: string, input: Record<string, unknown>): ToolUseContentBlock {
-  return { type: 'tool_use', id: 'tu_1', name, input }
-}
+import type { ToolResultBlock } from '@/model/types.ts'
 
 function makeToolResult(content: string): ToolResultBlock {
   return { tool_use_id: 'tu_1', type: 'tool_result', content }
 }
 
 describe('DefaultResult', () => {
-  it('renders collapsible input section with tool name and raw result text', () => {
-    render(
-      <DefaultResult
-        toolUse={makeToolUse('CustomTool', { key: 'value', count: 42 })}
-        toolResult={makeToolResult('Tool output text')}
-      />,
-    )
-    expect(screen.getByText('Input (CustomTool)')).toBeInTheDocument()
+  it('renders raw result text in a pre element', () => {
+    render(<DefaultResult toolResult={makeToolResult('Tool output text')} />)
     expect(screen.getByText('Tool output text')).toBeInTheDocument()
+    const pre = screen.getByText('Tool output text').closest('pre')
+    expect(pre).not.toBeNull()
   })
 
-  it('shows expandable JSON tree input inside the collapsible details', () => {
+  it('does not render a duplicate input section since ToolCallView already shows input parameters', () => {
     const { container } = render(
-      <DefaultResult
-        toolUse={makeToolUse('MyTool', { param: 'test' })}
-        toolResult={makeToolResult('result')}
-      />,
+      <DefaultResult toolResult={makeToolResult('result')} />,
     )
     const details = container.querySelector('details')
-    expect(details).not.toBeNull()
-    expect(details?.textContent).toContain('"param"')
-    expect(details?.textContent).toContain('"test"')
+    expect(details).toBeNull()
   })
 
-  it('highlights search matches in both input JSON and result content', () => {
+  it('highlights search matches in result content with mark elements', () => {
     render(
       <DefaultResult
-        toolUse={makeToolUse('Search', { query: 'hello world' })}
         toolResult={makeToolResult('Found hello in 3 files')}
         searchQuery="hello"
       />,
     )
     const marks = document.querySelectorAll('mark')
-    expect(marks.length).toBeGreaterThanOrEqual(2)
+    expect(marks.length).toBe(1)
+    expect(marks[0].textContent).toBe('hello')
   })
 })

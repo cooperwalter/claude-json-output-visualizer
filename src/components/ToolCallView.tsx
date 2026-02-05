@@ -115,7 +115,7 @@ export function ToolCallView({ toolUse, toolResult, toolResultMeta, searchQuery 
 
       {expanded && (
         <div className="px-3 pb-3 space-y-3 border-t border-gray-200 dark:border-gray-700 pt-3">
-          <details className="text-xs">
+          <details className="text-xs" open>
             <summary className="cursor-pointer text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
               Input Parameters
             </summary>
@@ -196,6 +196,6 @@ function ToolResultRenderer({
     case 'WebFetch':
       return <WebFetchResult toolUse={toolUse} toolResult={toolResult} searchQuery={searchQuery} />
     default:
-      return <DefaultResult toolUse={toolUse} toolResult={toolResult} searchQuery={searchQuery} />
+      return <DefaultResult toolResult={toolResult} searchQuery={searchQuery} />
   }
 }
