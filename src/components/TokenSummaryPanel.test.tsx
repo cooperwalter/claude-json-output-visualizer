@@ -106,6 +106,17 @@ describe('TokenSummaryPanel', () => {
     expect(screen.getByText('2A / 1U')).toBeInTheDocument()
   })
 
+  it('should count distinct turns by message.id when multiple records share the same message id', () => {
+    const records: RawRecord[] = [
+      makeAssistantRecord({ uuid: 'a1', message: { ...makeAssistantRecord().message, id: 'msg-1' } }),
+      makeAssistantRecord({ uuid: 'a2', message: { ...makeAssistantRecord().message, id: 'msg-1' } }),
+    ]
+
+    render(<TokenSummaryPanel records={records} />)
+
+    expect(screen.getByText('1A / 0U')).toBeInTheDocument()
+  })
+
   it('should show filtered totals when isFiltered is true and visibleTurns provided', () => {
     const assistant1 = makeAssistantRecord({ uuid: 'a1' })
     const assistant2 = makeAssistantRecord({

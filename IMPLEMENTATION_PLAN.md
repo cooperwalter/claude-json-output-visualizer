@@ -415,5 +415,23 @@ Build a static single-page application (SPA) that visualizes Claude Code JSONL c
 - Replaces inline token usage grids in both `MessageDetail.tsx` and `TaskResult.tsx`
 - Eliminates code duplication between the two components
 
+### Sticky Token Summary Panel
+- `TokenSummaryPanel` is now inside a sticky wrapper (along with `SearchBar` and `FilterBar`) at `top-[41px]` in `App.tsx`
+- The sticky container includes both the token summary and search/filter controls, so they remain visible when scrolling through long conversations
+- `TokenSummaryPanel` itself no longer needs its own sticky positioning since the parent handles it
+
+### Message Count Counts Distinct Turns
+- `computeAggregate` in `TokenSummaryPanel` now tracks distinct `message.id` values for assistant records and distinct `uuid` values for user records
+- Previously it incremented counters for every raw record, overcounting when multiple records share the same `message.id`
+- The displayed "Messages: XA / YU" now reflects actual logical turns, matching what users see in the timeline
+
+### Jump Buttons in Virtualized Mode
+- `JumpButtons` now render in both virtualized and non-virtualized timeline modes
+- In virtualized mode, the buttons call `virtualizer.scrollToIndex` for smooth navigation
+- `VirtualizedTimeline` accepts `onFocusedIndexChange` callback to update parent state when jump buttons are used
+
+### Search Match Count Format
+- `SearchBar` now displays "N of M matches" instead of "N of M" per the search-and-filtering spec
+
 ### Remaining Gaps (Future Work)
 - Search highlighting does not apply inside code blocks within markdown (intentional — highlighting within syntax-highlighted code would conflict with shiki styling)

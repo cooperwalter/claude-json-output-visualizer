@@ -67,7 +67,7 @@ export function SearchBar({
         />
         {isActive && (
           <span id="search-match-count" className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-gray-500 dark:text-gray-400" aria-live="polite">
-            {matchCount > 0 ? `${currentMatchIndex + 1} of ${matchCount}` : 'No matches'}
+            {matchCount > 0 ? `${currentMatchIndex + 1} of ${matchCount} matches` : 'No matches'}
           </span>
         )}
       </div>

@@ -35,9 +35,15 @@ function computeAggregate(records: RawRecord[]): AggregateUsage {
     serviceTiers: new Set(),
   }
 
+  const seenAssistantMessageIds = new Set<string>()
+  const seenUserUuids = new Set<string>()
+
   for (const record of records) {
     if (record.type === 'assistant') {
-      agg.assistantTurns++
+      if (!seenAssistantMessageIds.has(record.message.id)) {
+        seenAssistantMessageIds.add(record.message.id)
+        agg.assistantTurns++
+      }
       agg.models.add(record.message.model)
       const u = record.message.usage
       if (u.service_tier && u.service_tier !== 'standard') {
@@ -52,7 +58,10 @@ function computeAggregate(records: RawRecord[]): AggregateUsage {
         agg.ephemeral1hTokens += u.cache_creation.ephemeral_1h_input_tokens
       }
     } else {
-      agg.userTurns++
+      if (!seenUserUuids.has(record.uuid)) {
+        seenUserUuids.add(record.uuid)
+        agg.userTurns++
+      }
     }
   }
 

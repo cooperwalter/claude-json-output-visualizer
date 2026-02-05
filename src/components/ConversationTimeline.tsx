@@ -122,6 +122,7 @@ export function ConversationTimeline({
         currentMatchId={currentMatchId}
         searchQuery={searchQuery}
         focusedIndex={focusedIndex}
+        onFocusedIndexChange={setFocusedIndex}
       />
     )
   }
@@ -184,6 +185,7 @@ function VirtualizedTimeline({
   currentMatchId,
   searchQuery,
   focusedIndex,
+  onFocusedIndexChange,
 }: {
   turns: ConversationTurn[]
   isStreaming: boolean
@@ -191,6 +193,7 @@ function VirtualizedTimeline({
   currentMatchId?: string
   searchQuery?: string
   focusedIndex: number
+  onFocusedIndexChange: (index: number) => void
 }) {
   const parentRef = useRef<HTMLDivElement>(null)
   const prevTurnCountRef = useRef(turns.length)
@@ -227,45 +230,57 @@ function VirtualizedTimeline({
   }, [focusedIndex, virtualizer])
 
   return (
-    <div
-      ref={parentRef}
-      className="max-w-4xl mx-auto px-4"
-      style={{ height: 'calc(100vh - 180px)', overflow: 'auto' }}
-    >
+    <>
       <div
-        style={{
-          height: `${virtualizer.getTotalSize()}px`,
-          width: '100%',
-          position: 'relative',
-        }}
+        ref={parentRef}
+        className="max-w-4xl mx-auto px-4"
+        style={{ height: 'calc(100vh - 180px)', overflow: 'auto' }}
       >
-        {virtualizer.getVirtualItems().map((virtualRow) => {
-          const turn = turns[virtualRow.index]
-          return (
-            <div
-              key={turn.messageId}
-              data-index={virtualRow.index}
-              ref={virtualizer.measureElement}
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                transform: `translateY(${virtualRow.start}px)`,
-              }}
-            >
-              <TurnCard
-                turn={turn}
-                index={virtualRow.index}
-                forceExpanded={searchMatchIds?.has(turn.messageId)}
-                isCurrentMatch={turn.messageId === currentMatchId}
-                isFocused={virtualRow.index === focusedIndex}
-                searchQuery={searchQuery}
-              />
-            </div>
-          )
-        })}
+        <div
+          style={{
+            height: `${virtualizer.getTotalSize()}px`,
+            width: '100%',
+            position: 'relative',
+          }}
+        >
+          {virtualizer.getVirtualItems().map((virtualRow) => {
+            const turn = turns[virtualRow.index]
+            return (
+              <div
+                key={turn.messageId}
+                data-index={virtualRow.index}
+                ref={virtualizer.measureElement}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  transform: `translateY(${virtualRow.start}px)`,
+                }}
+              >
+                <TurnCard
+                  turn={turn}
+                  index={virtualRow.index}
+                  forceExpanded={searchMatchIds?.has(turn.messageId)}
+                  isCurrentMatch={turn.messageId === currentMatchId}
+                  isFocused={virtualRow.index === focusedIndex}
+                  searchQuery={searchQuery}
+                />
+              </div>
+            )
+          })}
+        </div>
       </div>
-    </div>
+      <JumpButtons
+        onJumpTop={() => {
+          onFocusedIndexChange(0)
+          virtualizer.scrollToIndex(0, { align: 'start', behavior: 'smooth' })
+        }}
+        onJumpBottom={() => {
+          onFocusedIndexChange(turns.length - 1)
+          virtualizer.scrollToIndex(turns.length - 1, { align: 'end', behavior: 'smooth' })
+        }}
+      />
+    </>
   )
 }

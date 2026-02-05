@@ -97,14 +97,15 @@ function App() {
           />
         )}
 
-        <TokenSummaryPanel
-          records={state.records}
-          visibleTurns={visibleTurns}
-          isFiltered={filterHook.isActive || search.isActive}
-          indexes={state.indexes}
-        />
+        <div className="sticky top-[41px] z-10 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+          <TokenSummaryPanel
+            records={state.records}
+            visibleTurns={visibleTurns}
+            isFiltered={filterHook.isActive || search.isActive}
+            indexes={state.indexes}
+          />
 
-        <div className="sticky top-[41px] z-10 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-2 space-y-2">
+        <div className="px-4 py-2 space-y-2">
           <SearchBar
             query={search.query}
             onQueryChange={search.setQuery}
@@ -128,6 +129,7 @@ function App() {
             totalTurns={state.turns.length}
             filteredTurns={visibleTurns.length}
           />
+        </div>
         </div>
 
         {state.error && (
