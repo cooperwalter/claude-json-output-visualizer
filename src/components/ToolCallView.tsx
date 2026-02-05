@@ -39,7 +39,9 @@ export function ToolCallView({ toolUse, toolResult, toolResultMeta }: ToolCallVi
         className="w-full px-3 py-2 flex items-center gap-2 text-left hover:bg-gray-100 dark:hover:bg-gray-800 rounded-t"
       >
         <span className="text-xs text-gray-400">{expanded ? '▼' : '▶'}</span>
-        <span className="text-xs font-medium text-gray-500 dark:text-gray-400">⚙</span>
+        <svg className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400 shrink-0" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M9.4 5.2L10.8 3.8a1.5 1.5 0 112.1 2.1L11.5 7.3M6.6 10.8L5.2 12.2a1.5 1.5 0 11-2.1-2.1L4.5 8.7M6 10L10 6" />
+        </svg>
         <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
           {toolUse.name}
         </span>
@@ -73,7 +75,11 @@ export function ToolCallView({ toolUse, toolResult, toolResultMeta }: ToolCallVi
           </>
         )}
         {isPending && (
-          <span className="text-xs text-gray-400 dark:text-gray-500 animate-pulse">
+          <span className="flex items-center gap-1.5 text-xs text-gray-400 dark:text-gray-500">
+            <svg className="w-3.5 h-3.5 animate-spin" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="8" cy="8" r="6" strokeOpacity="0.25" />
+              <path d="M14 8a6 6 0 00-6-6" strokeOpacity="0.75" strokeLinecap="round" />
+            </svg>
             Awaiting result...
           </span>
         )}

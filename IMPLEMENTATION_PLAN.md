@@ -312,8 +312,21 @@ Build a static single-page application (SPA) that visualizes Claude Code JSONL c
 ### MessageDetail Parent Tool Use ID
 - `MessageDetail` metadata section now always shows Parent Tool Use ID field, displaying "None" when null (matching spec requirement)
 
+### SVG Icons for Content Type and Tool Indicators
+- `ContentTypeIcons` in `TurnCard` uses inline SVGs: horizontal-lines icon for text, wrench/link icon for tools
+- `ToolCallView` header uses the same wrench SVG instead of the unicode gear `⚙` character
+- Tool count multiplier (`2×`, `3×`, etc.) shown next to the tool icon when multiple tool_use blocks exist in a turn
+
+### Spinner Icon for Pending Tool Results
+- `ToolCallView` shows a spinning circle SVG (`animate-spin`) alongside "Awaiting result..." for tool_use blocks without a matching tool_result
+- Replaces the previous text-only `animate-pulse` approach per the spec's "spinner/loading indicator" requirement
+
+### formatModel Date Suffix Handling
+- `formatModel` now only strips the trailing segment if it matches an 8-digit date pattern (`-YYYYMMDD`)
+- Model names without date suffixes (e.g. `claude-3-opus`) are preserved intact
+- Previously the function blindly removed the last hyphen-separated segment regardless of format
+
 ### Remaining Gaps (Future Work)
 - TokenUsageDetail component: Per-message usage is handled inline in MessageDetail, not as a separate component
 - Search highlighting does not apply inside code blocks within markdown (intentional — highlighting within syntax-highlighted code would conflict with shiki styling)
 - The "Sub-agent only" filter checks for turns containing Task tool_use blocks rather than turns with non-null parentToolUseId (since sub-agent turns are filtered out of the top-level timeline by design)
-- Model name formatting strips the last hyphen-separated segment (assumed date suffix) — could incorrectly truncate non-date-suffixed model names

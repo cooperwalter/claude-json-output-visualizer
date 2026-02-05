@@ -161,9 +161,9 @@ function getSubAgentType(turn: ConversationTurn): string | undefined {
 }
 
 function formatModel(model: string): string {
-  const parts = model.split('-')
-  if (parts.length >= 2) {
-    return parts.slice(0, -1).join('-')
+  const match = model.match(/-(\d{8})$/)
+  if (match) {
+    return model.slice(0, -match[0].length)
   }
   return model
 }
@@ -173,15 +173,18 @@ function ContentTypeIcons({ blocks }: { blocks: ContentBlock[] }) {
   const toolCount = blocks.filter((b) => b.type === 'tool_use').length
 
   return (
-    <div className="flex items-center gap-1 shrink-0">
+    <div className="flex items-center gap-1.5 shrink-0">
       {hasText && (
-        <span className="text-xs text-gray-400 dark:text-gray-500" title="Text content">
-          T
-        </span>
+        <svg className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500" title="Text content" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M3 4h10M3 8h7M3 12h9" />
+        </svg>
       )}
       {toolCount > 0 && (
-        <span className="text-xs text-gray-400 dark:text-gray-500" title={`${toolCount} tool call(s)`}>
-          {toolCount > 1 ? `${toolCount}x` : ''}⚙
+        <span className="flex items-center gap-0.5 text-gray-400 dark:text-gray-500" title={`${toolCount} tool call(s)`}>
+          {toolCount > 1 && <span className="text-xs">{toolCount}×</span>}
+          <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9.4 5.2L10.8 3.8a1.5 1.5 0 112.1 2.1L11.5 7.3M6.6 10.8L5.2 12.2a1.5 1.5 0 11-2.1-2.1L4.5 8.7M6 10L10 6" />
+          </svg>
         </span>
       )}
     </div>
