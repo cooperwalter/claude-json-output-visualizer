@@ -57,6 +57,9 @@ All 11 phases are fully implemented and verified against specs:
 - `appReducer` and `initialState` are exported for direct unit testing — the reducer is a pure function, ideal for testing without React rendering
 - `useFilters` tests use `renderHook` from `@testing-library/react` with `act()` for state updates
 - Test generator functions (e.g. `makeAssistantRecord`, `makeUserTurn`) accept partial overrides for flexible fixture creation
+- jsdom does not provide `scrollIntoView` or `scrollTo` — components using these (e.g. `ConversationTimeline`) need `beforeEach` mocks: `Element.prototype.scrollIntoView = vi.fn()` and `Element.prototype.scrollTo = vi.fn()`
+- `useStreamingParse` is testable via `renderHook` — the hook returns `parseText`, `stop`, `resume`, `reset` which can be called in `act()` blocks; the mock `dispatch` captures all dispatched actions for assertion
+- `useRecentSessions` relies on `localStorage` — tests use `localStorage.clear()` in `beforeEach` and `vi.spyOn(Storage.prototype, 'setItem')` to simulate quota-exceeded errors
 
 ### CodeBlock Line Numbers
 - `CodeBlock` accepts optional `showLineNumbers` and `startLine` props for gutter display
@@ -79,6 +82,10 @@ All 11 phases are fully implemented and verified against specs:
 ## Spec Compliance Audit
 
 Full audit of all 9 spec files completed. All spec requirements fully implemented.
+
+### Resolved in v0.0.30
+- Added 138 new tests across 8 previously untested files, bringing total from 203 to 341
+- New test files: `useStreamingParse.test.ts` (14 tests: batch processing, pause/resume, abort, empty/invalid input errors), `useRecentSessions.test.ts` (11 tests: localStorage persistence, dedup by sessionId, MAX_SESSIONS limit, malformed data resilience, write failure handling), `fileLoader.test.ts` (9 tests: readFileAsText, createFileInput, handleDragOver, handleDrop), `highlighter.test.ts` (30 tests: langFromFilePath for all mapped extensions, unknown/missing extensions, case-insensitive, nested paths), `ConversationTimeline.test.tsx` (14 tests: empty state, clear filters button, keyboard nav j/k/arrows/Home/End, input focus exclusion, jump buttons, feed role), `MessageDetail.test.tsx` (15 tests: Raw JSON/Metadata/Token Usage toggles, aria-expanded, copy text, tool_use rendering), `SearchBar.test.tsx` (24 tests: keyboard shortcuts / Ctrl+F Escape Enter Shift+Enter arrows, match count display, navigation buttons, accessibility), `LandingPage.test.tsx` (21 tests: title, drop zone drag states, paste modal open/close/submit/disable, recent sessions rendering, file size formatting, clear history)
 
 ### Resolved in v0.0.29
 - Fixed `ReadResult` truncation indicator to match spec: changed `(lines X-Y of Z)` to `Showing lines X-Y of Z`
