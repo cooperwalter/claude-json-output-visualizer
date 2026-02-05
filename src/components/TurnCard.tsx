@@ -74,7 +74,7 @@ export function TurnCard({ turn, index, forceExpanded, isCurrentMatch, isFocused
           {isAssistant ? 'Assistant' : 'User'}
         </span>
 
-        {model && (
+        {model && expanded && (
           <span
             className="px-1.5 py-0.5 text-xs font-mono rounded bg-gray-100 text-gray-500 dark:bg-gray-700/50 dark:text-gray-400 shrink-0"
             title={model}

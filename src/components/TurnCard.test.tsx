@@ -200,9 +200,15 @@ describe('TurnCard', () => {
     expect(screen.getByText('Show Token Usage')).toBeInTheDocument()
   })
 
-  it('should display abbreviated model name badge on assistant turns in collapsed state', () => {
+  it('should hide model name badge in collapsed state and show it when expanded', async () => {
+    const user = userEvent.setup()
     const turn = makeTurn([makeAssistantRecord()])
     render(<TurnCard turn={turn} index={0} />)
+    expect(screen.queryByText('sonnet-4')).not.toBeInTheDocument()
+
+    const card = screen.getByText('Hello world').closest('[id^="turn-"]')!
+    await user.click(card)
+
     expect(screen.getByText('sonnet-4')).toBeInTheDocument()
     expect(screen.getByTitle('claude-sonnet-4-20250514')).toBeInTheDocument()
   })

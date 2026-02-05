@@ -91,11 +91,11 @@ describe('MessageDetail', () => {
       expect(screen.queryByText('Hide Raw JSON')).not.toBeInTheDocument()
     })
 
-    it('expands when clicked and shows syntax-highlighted JSON', () => {
+    it('expands when clicked and shows expandable JSON tree', () => {
       render(<MessageDetail turn={makeAssistantTurn()} />)
       fireEvent.click(screen.getByText('Show Raw JSON'))
       expect(screen.getByText('Hide Raw JSON')).toBeInTheDocument()
-      expect(screen.getByTestId('code-block')).toBeInTheDocument()
+      expect(screen.getAllByLabelText(/Collapse|Expand/).length).toBeGreaterThan(0)
     })
 
     it('collapses when clicked again', () => {

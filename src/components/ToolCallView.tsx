@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { ToolResultBlock, ToolUseContentBlock, ToolUseResultMeta } from '@/model/types.ts'
 import { HighlightedText } from './TurnCard.tsx'
 import { ToolIcon } from './ToolIcon.tsx'
+import { JsonTree } from './JsonTree.tsx'
 import { ReadResult } from './toolResults/ReadResult.tsx'
 import { BashResult } from './toolResults/BashResult.tsx'
 import { EditResult } from './toolResults/EditResult.tsx'
@@ -50,6 +51,7 @@ export function ToolCallView({ toolUse, toolResult, toolResultMeta, searchQuery 
         </span>
         {!expanded && toolUse.name === 'Task' && typeof toolUse.input.subagent_type === 'string' && (
           <span className="text-xs text-gray-500 dark:text-gray-400 truncate min-w-0">
+            {'Sub-agent: '}
             {searchQuery
               ? <HighlightedText text={toolUse.input.subagent_type as string} query={searchQuery} />
               : toolUse.input.subagent_type as string}
@@ -117,12 +119,8 @@ export function ToolCallView({ toolUse, toolResult, toolResultMeta, searchQuery 
             <summary className="cursor-pointer text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
               Input Parameters
             </summary>
-            <div className="relative group/input">
-              <pre className="mt-1 font-mono bg-white dark:bg-gray-900 rounded p-2 overflow-x-auto text-gray-700 dark:text-gray-300">
-                {searchQuery
-                  ? <HighlightedText text={JSON.stringify(toolUse.input, null, 2)} query={searchQuery} />
-                  : JSON.stringify(toolUse.input, null, 2)}
-              </pre>
+            <div className="relative group/input mt-1">
+              <JsonTree data={toolUse.input} defaultExpandDepth={2} searchQuery={searchQuery} />
               <button
                 onClick={(e) => {
                   e.stopPropagation()

@@ -100,6 +100,26 @@ All 11 phases are fully implemented and verified against specs:
 
 Full audit of all 9 spec files completed. All spec requirements fully implemented.
 
+### Resolved in v0.0.33
+- Added `JsonTree` component (`src/components/JsonTree.tsx`) — custom expandable/collapsible JSON tree viewer fulfilling the `tech-stack.md` spec requirement for "Pretty-printed expandable JSON" without adding an external dependency like `react-json-view`
+- JSON objects and arrays render with expand/collapse toggles, item counts when collapsed, indentation lines, and color-coded values (purple keys, amber strings, green numbers, blue booleans, gray null)
+- `defaultExpandDepth` prop controls initial expansion level (2 for tool inputs and raw JSON)
+- Search highlighting works within JSON tree values and keys via `searchQuery` prop
+- Integrated `JsonTree` into `ToolCallView.tsx` (Input Parameters), `MessageDetail.tsx` (Raw JSON), and `DefaultResult.tsx` (fallback tool input)
+- Fixed sub-agent collapsed label to match `conversation-timeline.md` spec "Sub-agent: [type]" format — previously showed just the type name without "Sub-agent:" prefix
+- Fixed model indicator visibility to match `conversation-timeline.md` spec "collapsed by default" — model badge now only shows when turn is expanded, not in collapsed summary
+- Added 22 new tests in `JsonTree.test.tsx` covering primitives, objects, arrays, nested structures, expand/collapse interactions, search highlighting, and ARIA attributes
+- Total test count: 459 (up from 437)
+
+### JsonTree Design
+- `JsonTree` component renders any JSON-serializable value as an interactive tree
+- `JsonValue` typed as `unknown` to accept any data shape from tool inputs and raw records without type casting
+- Each node manages its own `expanded` state independently — toggling one node does not affect siblings
+- `CollapsibleNode` renders both the collapsed summary (`{3 items}`) and expanded children with indentation guides
+- `PrimitiveValue` handles null, boolean, number, and string rendering with type-specific colors
+- `HighlightedJsonText` reuses the same search-highlight pattern as `HighlightedText` in `TurnCard.tsx`
+- ARIA: expand/collapse buttons have `aria-expanded` and descriptive `aria-label` including the key name and type (e.g., `Expand object "message"`)
+
 ### Resolved in v0.0.32
 - Optimized Shiki bundle: switched from `shiki` (full bundle, 298+ languages) to `shiki/bundle/web` (56 web languages) — main bundle reduced from 528 kB to 268 kB (49% reduction), eliminated `emacs-lisp` 780 kB chunk
 - Extra languages (`toml`, `rust`, `go`, `ruby`, `diff`) loaded via explicit static dynamic imports from `@shikijs/langs/[lang]` to avoid Vite `dynamic-import-vars` warnings

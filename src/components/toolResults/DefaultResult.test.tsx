@@ -23,17 +23,17 @@ describe('DefaultResult', () => {
     expect(screen.getByText('Tool output text')).toBeInTheDocument()
   })
 
-  it('shows pretty-printed JSON input inside the collapsible details', () => {
+  it('shows expandable JSON tree input inside the collapsible details', () => {
     const { container } = render(
       <DefaultResult
         toolUse={makeToolUse('MyTool', { param: 'test' })}
         toolResult={makeToolResult('result')}
       />,
     )
-    const pre = container.querySelector('details pre')
-    expect(pre).not.toBeNull()
-    expect(pre?.textContent).toContain('"param"')
-    expect(pre?.textContent).toContain('"test"')
+    const details = container.querySelector('details')
+    expect(details).not.toBeNull()
+    expect(details?.textContent).toContain('"param"')
+    expect(details?.textContent).toContain('"test"')
   })
 
   it('highlights search matches in both input JSON and result content', () => {

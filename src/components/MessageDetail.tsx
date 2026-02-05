@@ -3,6 +3,7 @@ import Markdown from 'react-markdown'
 import type { ConversationTurn, ContentBlock, ToolResultBlock } from '@/model/types.ts'
 import { ToolCallView } from './ToolCallView.tsx'
 import { CodeBlock } from './CodeBlock.tsx'
+import { JsonTree } from './JsonTree.tsx'
 import { TokenUsageDetail } from './TokenUsageDetail.tsx'
 import { HighlightedText } from './TurnCard.tsx'
 
@@ -97,7 +98,7 @@ export function MessageDetail({ turn, searchQuery }: MessageDetailProps) {
 
       {showRawJson && (
         <div className="relative group/json">
-          <CodeBlock code={JSON.stringify(turn.records, null, 2)} lang="json" />
+          <JsonTree data={turn.records} defaultExpandDepth={2} searchQuery={searchQuery} />
           <button
             onClick={() => navigator.clipboard.writeText(JSON.stringify(turn.records, null, 2))}
             aria-label="Copy raw JSON"

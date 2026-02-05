@@ -133,7 +133,8 @@ describe('ToolCallView', () => {
     const button = screen.getByRole('button', { name: /Read/i })
     await user.click(button)
 
-    expect(screen.getByText('▼')).toBeInTheDocument()
+    const chevron = button.querySelector('.text-xs.text-gray-400')
+    expect(chevron?.textContent).toBe('▼')
   })
 
   it('should highlight file path with mark element when searchQuery matches', () => {
@@ -156,13 +157,13 @@ describe('ToolCallView', () => {
     expect(marks[0].textContent).toBe('test')
   })
 
-  it('should show subagent_type and description in collapsed state for Task tool calls', () => {
+  it('should show Sub-agent label with subagent_type and description in collapsed state for Task tool calls', () => {
     const toolUse = makeToolUse({
       name: 'Task',
       input: { subagent_type: 'Bash', description: 'Run unit tests' },
     })
     render(<ToolCallView toolUse={toolUse} toolResult={makeToolResult()} />)
-    expect(screen.getByText('Bash')).toBeInTheDocument()
+    expect(screen.getByText(/Sub-agent:\s*Bash/)).toBeInTheDocument()
     expect(screen.getByText(/Run unit tests/)).toBeInTheDocument()
   })
 
@@ -173,7 +174,7 @@ describe('ToolCallView', () => {
       input: { subagent_type: 'Explore', description: longDesc },
     })
     render(<ToolCallView toolUse={toolUse} toolResult={makeToolResult()} />)
-    expect(screen.getByText('Explore')).toBeInTheDocument()
+    expect(screen.getByText(/Sub-agent:\s*Explore/)).toBeInTheDocument()
     expect(screen.getByText(new RegExp(longDesc.slice(0, 80) + '\\.\\.\\.'))).toBeInTheDocument()
   })
 
