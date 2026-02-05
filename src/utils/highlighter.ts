@@ -1,19 +1,30 @@
-import { createHighlighter, type Highlighter } from 'shiki'
+import { createHighlighter, type Highlighter } from 'shiki/bundle/web'
 
 let highlighterPromise: Promise<Highlighter> | null = null
 
-const COMMON_LANGS = [
+const WEB_BUNDLE_LANGS = [
   'json', 'typescript', 'javascript', 'tsx', 'jsx',
   'python', 'bash', 'shell', 'html', 'css', 'markdown',
-  'yaml', 'toml', 'rust', 'go', 'java', 'c', 'cpp',
-  'ruby', 'php', 'sql', 'xml', 'diff',
+  'yaml', 'java', 'c', 'cpp', 'php', 'sql', 'xml',
+]
+
+const extraLangImports = [
+  () => import('@shikijs/langs/toml'),
+  () => import('@shikijs/langs/rust'),
+  () => import('@shikijs/langs/go'),
+  () => import('@shikijs/langs/ruby'),
+  () => import('@shikijs/langs/diff'),
 ]
 
 export function getHighlighter(): Promise<Highlighter> {
   if (!highlighterPromise) {
     highlighterPromise = createHighlighter({
       themes: ['github-dark', 'github-light'],
-      langs: COMMON_LANGS,
+      langs: WEB_BUNDLE_LANGS,
+    }).then(async (h) => {
+      const extras = await Promise.all(extraLangImports.map((fn) => fn()))
+      await h.loadLanguage(...extras.map((m) => m.default).flat())
+      return h
     })
   }
   return highlighterPromise

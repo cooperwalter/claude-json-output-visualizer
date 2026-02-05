@@ -10,4 +10,15 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  build: {
+    chunkSizeWarningLimit: 650,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'shiki-core': ['shiki/bundle/web'],
+          'react-vendor': ['react', 'react-dom', 'react-markdown'],
+        },
+      },
+    },
+  },
 })

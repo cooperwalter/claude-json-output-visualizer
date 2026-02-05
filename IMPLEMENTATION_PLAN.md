@@ -39,9 +39,12 @@ All 11 phases are fully implemented and verified against specs:
 - Dark mode via `@custom-variant dark (&:where(.dark, .dark *))` in `index.css`
 
 ### Shiki Syntax Highlighting
+- Uses `shiki/bundle/web` (56 common web languages) instead of full `shiki` bundle (298+ languages) to reduce chunk count and initial bundle size
+- Extra languages not in the web bundle (`toml`, `rust`, `go`, `ruby`, `diff`) are loaded via explicit dynamic imports from `@shikijs/langs/[lang]` — must use static import paths (not template literals) to avoid Vite `dynamic-import-vars` warnings
 - Singleton `createHighlighter` pattern with lazy-loaded language grammars
 - Theme detection: `classList.contains('dark')` + `prefers-color-scheme` media query
 - When search is active, code display falls back to plain `<pre>` with `HighlightedText` instead of Shiki
+- Vite `build.rollupOptions.output.manualChunks` separates `shiki-core` and `react-vendor` into dedicated chunks for better caching
 
 ### ESLint Patterns
 - `react-refresh/only-export-components`: non-component exports must go in `.ts` files, not `.tsx`
@@ -60,6 +63,14 @@ All 11 phases are fully implemented and verified against specs:
 - jsdom does not provide `scrollIntoView` or `scrollTo` — components using these (e.g. `ConversationTimeline`) need `beforeEach` mocks: `Element.prototype.scrollIntoView = vi.fn()` and `Element.prototype.scrollTo = vi.fn()`
 - `useStreamingParse` is testable via `renderHook` — the hook returns `parseText`, `stop`, `resume`, `reset` which can be called in `act()` blocks; the mock `dispatch` captures all dispatched actions for assertion
 - `useRecentSessions` relies on `localStorage` — tests use `localStorage.clear()` in `beforeEach` and `vi.spyOn(Storage.prototype, 'setItem')` to simulate quota-exceeded errors
+
+### Additional Testing Patterns
+- `useDarkMode` tests require mocking `window.matchMedia` since jsdom doesn't support it — use `Object.defineProperty(window, 'matchMedia', { writable: true, value: vi.fn().mockImplementation(...) })`
+- `ErrorBoundary` (class component) tests use a `ThrowingComponent` helper and suppress `console.error` with `vi.spyOn(console, 'error').mockImplementation(() => {})` to avoid noisy output
+- `FilePathHeader` tests mock `navigator.clipboard.writeText` and use `vi.useFakeTimers()` to test the 1500ms "Copied!" feedback timeout
+- `CodeBlock` tests mock `@/utils/highlighter.ts` with a controllable promise — tests can either verify the pre-highlight fallback state or resolve the promise with `act()` to test the highlighted state
+- `DarkModeToggle` tests mock the `useDarkMode` hook to isolate component behavior from theme state logic
+- `SessionHeader` tests mock `DarkModeToggle` to avoid hook dependency chain
 
 ### Vitest 3.x Mock Typing
 - `vi.fn()` generics changed in Vitest 3.x: use `vi.fn<Signature>()` not `vi.fn<[Args], Return>()`
@@ -81,13 +92,21 @@ All 11 phases are fully implemented and verified against specs:
 
 ### Known Limitations (Intentional)
 - Search highlighting does not apply inside code blocks within markdown (would conflict with shiki styling)
-- Build produces large chunks from Shiki language grammars (code-split via dynamic imports)
+- Shiki WASM engine chunk (~622 kB) and cpp grammar chunk (~626 kB) are inherently large but loaded on-demand; main bundle reduced to ~268 kB via `shiki/bundle/web` and manual chunk splitting
 
 ---
 
 ## Spec Compliance Audit
 
 Full audit of all 9 spec files completed. All spec requirements fully implemented.
+
+### Resolved in v0.0.32
+- Optimized Shiki bundle: switched from `shiki` (full bundle, 298+ languages) to `shiki/bundle/web` (56 web languages) — main bundle reduced from 528 kB to 268 kB (49% reduction), eliminated `emacs-lisp` 780 kB chunk
+- Extra languages (`toml`, `rust`, `go`, `ruby`, `diff`) loaded via explicit static dynamic imports from `@shikijs/langs/[lang]` to avoid Vite `dynamic-import-vars` warnings
+- Added Vite `build.rollupOptions.output.manualChunks` to separate `shiki-core` (111 kB) and `react-vendor` (130 kB) into dedicated cacheable chunks
+- Added `build.chunkSizeWarningLimit: 650` to suppress expected large chunk warnings (WASM engine, cpp grammar)
+- Added 96 new tests across 9 previously untested files, bringing total from 341 to 437
+- New test files: `FilterBar.test.tsx` (30 tests: expand/collapse, role/status/tool/model filters, active indicator, clear filters, accessibility attributes), `SessionHeader.test.tsx` (14 tests: file name display, record count, loading indicator, skipped lines, Stop/Resume/Load buttons, DarkModeToggle rendering), `DarkModeToggle.test.tsx` (5 tests: theme cycling light→dark→system→light, aria-label, SVG icons), `useDarkMode.test.ts` (12 tests: localStorage persistence, system preference detection, media query listener, dark class toggling, write failure handling, initDarkMode), `ErrorBoundary.test.tsx` (7 tests: child rendering, error UI, custom fallback, Try again reset, componentDidCatch logging), `TokenUsageDetail.test.tsx` (10 tests: token counts, ephemeral cache display, service tier visibility, className), `FilePathHeader.test.tsx` (7 tests: path display, clipboard copy, Copied! feedback with timer), `CodeBlock.test.tsx` (11 tests: plain fallback, highlighted HTML, dark/light theme selection, language fallback, line numbers with gutter, startLine offset)
 
 ### Resolved in v0.0.31
 - Fixed `useStreamingParse.test.ts` build failure — Vitest 3.x changed `vi.fn()` generics from `vi.fn<[Args], Return>()` to `vi.fn<Signature>()`, causing 12 TypeScript errors; updated mock typing to use `Mock<Dispatch<AppAction>>` and replaced raw `.mock.calls` filter callbacks with typed `callArgs()` helper using `Extract<AppAction, { type: 'RECORDS_BATCH' }>` discriminated union narrowing
