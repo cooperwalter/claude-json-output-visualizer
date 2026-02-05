@@ -68,33 +68,13 @@ All 11 phases are fully implemented and verified against specs:
 
 ---
 
-## Spec Compliance Audit (v0.0.23)
+## Spec Compliance Audit
 
 Full audit of all 9 spec files completed. All spec requirements fully implemented.
 
-### Resolved in v0.0.24
-- Fixed 4 test timeouts caused by React 19 `act()` waiting for Shiki WASM loading and react-markdown unified pipeline
-- Added `CodeBlock` and `react-markdown` mocks to ToolCallView, TurnCard, and TaskResult tests
-- Switched TokenSummaryPanel tests from `userEvent` to `fireEvent.click` for synchronous-only component
+### Resolved in v0.0.25
+- Updated `specs/data-model.md` to make `cache_creation` optional (`cache_creation?:`) — the actual Claude Code JSONL output does not always include this field, so the spec now matches runtime data and the TypeScript type
 
-### Resolved in v0.0.23
-- ConversationTimeline: `outline-none` + `tabIndex={-1}` on feed container so Escape→focus-timeline works
-- MessageDetail: reordered toggle buttons and sections to consistent Raw JSON → Metadata → Token Usage
-- SearchBar: after Escape clears search, focus returns to `[role="feed"]` timeline element
-- ToolCallView: copy button hover uses `group-hover/input` for correct nested hover scope
-
-### Resolved in v0.0.22
-- Fixed build failure: `TokenUsageDetail.tsx` — `cache_creation?.ephemeral_*` properties needed nullish coalescing (`?? 0`) for safe comparison
-- Unified MessageDetail toggle pattern: Token Usage now uses the same button toggle as Metadata and Raw JSON (was inconsistent `<details>` element)
-
-### Resolved in v0.0.21
-- Search bar now supports Up/Down arrow keys for match navigation (in addition to Enter/Shift+Enter)
-- Copy buttons now use clipboard icons instead of text labels per spec ("small copy icon, hidden until hover/focus")
-- `Usage.cache_creation` type is now optional (`cache_creation?: CacheCreation`) — aligns TS type with runtime defensive checks
-- Recent sessions section shows "Re-load the file to view again" hint so users understand items are informational-only
-- TurnCard now scrolls into view on expansion (`scrollIntoView` with `block: 'nearest'`)
-- jsdom `scrollIntoView` guard: check `typeof === 'function'` before calling (jsdom does not implement it)
-
-### Low Priority / Cosmetic (remaining)
-- Bash tool results do not differentiate stdout vs stderr (spec line 42: "Command shown as code block + stdout/stderr output") — the JSONL data format does not separate them
-- DefaultResult shows input in a collapsible `<details>` while ToolCallView also has a collapsible input section (minor redundancy)
+### Known Limitations (Data Format)
+- Bash tool results do not differentiate stdout vs stderr — the JSONL data format does not separate them
+- DefaultResult shows input in a collapsible `<details>` while ToolCallView also has a collapsible input section (minor redundancy, both are useful in different contexts)

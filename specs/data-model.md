@@ -72,7 +72,7 @@ type Usage = {
   input_tokens: number
   cache_creation_input_tokens: number
   cache_read_input_tokens: number
-  cache_creation: {
+  cache_creation?: {               // absent when no ephemeral caching occurred
     ephemeral_5m_input_tokens: number
     ephemeral_1h_input_tokens: number
   }
