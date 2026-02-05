@@ -29,7 +29,11 @@ function loadSessions(): RecentSession[] {
 }
 
 function saveSessions(sessions: RecentSession[]): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions))
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions))
+  } catch {
+    // localStorage may be full or unavailable
+  }
 }
 
 export function useRecentSessions() {

@@ -455,5 +455,16 @@ Build a static single-page application (SPA) that visualizes Claude Code JSONL c
 - `ToolCallView.tsx` now shows subagent_type followed by a truncated description (80 chars) when collapsed
 - Search highlighting applies to both fields via `HighlightedText`
 
+### Tool Result Component Test Coverage
+- Added unit tests for all 8 previously untested tool result components: ReadResult, EditResult, BashResult, WriteResult, GlobResult, WebFetchResult, DefaultResult, TaskResult
+- Tests mock `CodeBlock` (async Shiki dependency) and `langFromFilePath` to isolate component logic
+- TaskResult tests mock `ConversationContext` to provide `IndexMaps` for sub-agent record lookup
+- `CodeBlock` mock renders as `<pre data-testid="code-block">` for targeted selection without conflicting with component's own `<pre>` elements
+- Test descriptions describe behavior, not implementation (e.g., "renders file path header and code content" not "should render correctly")
+
+### localStorage Error Handling
+- `saveSessions` in `useRecentSessions.ts` now wraps `localStorage.setItem` in try-catch — if localStorage is full or unavailable, the error is silently caught to prevent app crashes
+- `loadSessions` already had try-catch; this fix makes error handling consistent across all localStorage operations
+
 ### Remaining Gaps (Future Work)
 - Search highlighting does not apply inside code blocks within markdown (intentional — highlighting within syntax-highlighted code would conflict with shiki styling)
