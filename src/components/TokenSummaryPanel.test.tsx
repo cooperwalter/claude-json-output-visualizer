@@ -209,6 +209,35 @@ describe('TokenSummaryPanel', () => {
     expect(screen.getByText('claude-sonnet-4-20250514')).toBeInTheDocument()
   })
 
+  it('should display non-standard service tier when present', () => {
+    const records: RawRecord[] = [
+      makeAssistantRecord({
+        uuid: 'a1',
+        message: {
+          ...makeAssistantRecord().message,
+          usage: {
+            ...makeAssistantRecord().message.usage,
+            service_tier: 'scale',
+          },
+        },
+      }),
+    ]
+
+    render(<TokenSummaryPanel records={records} />)
+
+    expect(screen.getByText('scale')).toBeInTheDocument()
+  })
+
+  it('should not display service tier when all records use standard tier', () => {
+    const records: RawRecord[] = [
+      makeAssistantRecord({ uuid: 'a1' }),
+    ]
+
+    render(<TokenSummaryPanel records={records} />)
+
+    expect(screen.queryByText('Tier:')).not.toBeInTheDocument()
+  })
+
   it('should show More button and expandable details when sub-agent records exist', async () => {
     const user = userEvent.setup()
     const records: RawRecord[] = [

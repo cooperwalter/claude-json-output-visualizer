@@ -321,10 +321,11 @@ Build a static single-page application (SPA) that visualizes Claude Code JSONL c
 - `ToolCallView` shows a spinning circle SVG (`animate-spin`) alongside "Awaiting result..." for tool_use blocks without a matching tool_result
 - Replaces the previous text-only `animate-pulse` approach per the spec's "spinner/loading indicator" requirement
 
-### formatModel Date Suffix Handling
-- `formatModel` now only strips the trailing segment if it matches an 8-digit date pattern (`-YYYYMMDD`)
-- Model names without date suffixes (e.g. `claude-3-opus`) are preserved intact
-- Previously the function blindly removed the last hyphen-separated segment regardless of format
+### Model Indicator Collapsed by Default
+- Per the conversation-timeline spec, the model indicator should be "collapsed by default"
+- Model name is no longer shown in the `TurnCard` collapsed header
+- Model name is visible in the expanded Metadata section of `MessageDetail`
+- The `formatModel` utility was removed from `TurnCard` since it's no longer needed there
 
 ### SVG Accessibility: aria-label over title
 - SVG `title` prop is not part of `SVGProps<SVGSVGElement>` in React's type definitions
@@ -342,9 +343,18 @@ Build a static single-page application (SPA) that visualizes Claude Code JSONL c
 - Raw JSON "Copy" button uses `opacity-0 group-hover/json:opacity-100 focus:opacity-100 transition-opacity`
 - Tool input/result copy buttons already had this pattern via `ToolCallView`
 
+### Service Tier in Token Summary Panel
+- `TokenSummaryPanel` now tracks non-standard `service_tier` values across all records
+- Displays tier label only when at least one record has a tier other than "standard"
+- Hidden entirely when all records use the standard tier (per spec: "hidden otherwise")
+
+### Sub-Agent Filter Spec Alignment
+- The search-and-filtering spec originally said "Sub-agent only: Show only turns where parent_tool_use_id is non-null"
+- This was inconsistent with the architecture — sub-agent turns are filtered out of the top-level timeline by design
+- Spec updated to match implementation: filter shows turns that contain Task tool_use blocks (turns that spawn sub-agents)
+
 ### Remaining Gaps (Future Work)
 - TokenUsageDetail component: Per-message usage is handled inline in MessageDetail, not as a separate component
 - Search highlighting does not apply inside code blocks within markdown (intentional — highlighting within syntax-highlighted code would conflict with shiki styling)
-- The "Sub-agent only" filter checks for turns containing Task tool_use blocks rather than turns with non-null parentToolUseId (since sub-agent turns are filtered out of the top-level timeline by design)
 - Search highlighting does not propagate into specialized tool result components (ReadResult, BashResult, etc.) — only collapsed previews are highlighted
 - SessionMeta type does not include loadedAt or recordCount (these are tracked separately via RecentSession and state.records.length)

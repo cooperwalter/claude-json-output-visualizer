@@ -191,22 +191,23 @@ describe('TurnCard', () => {
     expect(screen.getByText('Token Usage')).toBeInTheDocument()
   })
 
-  it('should strip date suffix from model names like claude-sonnet-4-20250514', () => {
+  it('should not display model name in collapsed state per spec (collapsed by default)', () => {
     const turn = makeTurn([makeAssistantRecord()])
     render(<TurnCard turn={turn} index={0} />)
-    expect(screen.getByText('claude-sonnet-4')).toBeInTheDocument()
+    expect(screen.queryByText('claude-sonnet-4')).not.toBeInTheDocument()
+    expect(screen.queryByText('claude-sonnet-4-20250514')).not.toBeInTheDocument()
   })
 
-  it('should keep model name intact when it has no 8-digit date suffix', () => {
-    const record = makeAssistantRecord({
-      message: {
-        ...makeAssistantRecord().message,
-        model: 'claude-3-opus',
-      },
-    })
-    const turn = makeTurn([record])
+  it('should display model name in metadata section when expanded', async () => {
+    const user = userEvent.setup()
+    const turn = makeTurn([makeAssistantRecord()])
     render(<TurnCard turn={turn} index={0} />)
-    expect(screen.getByText('claude-3-opus')).toBeInTheDocument()
+
+    const card = screen.getByText('Hello world').closest('[id^="turn-"]')!
+    await user.click(card)
+    await user.click(screen.getByText('Show Metadata'))
+
+    expect(screen.getByText(/claude-sonnet-4-20250514/)).toBeInTheDocument()
   })
 
   it('should apply ring styling when isFocused is true', () => {

@@ -17,6 +17,7 @@ type AggregateUsage = {
   assistantTurns: number
   userTurns: number
   models: Set<string>
+  serviceTiers: Set<string>
 }
 
 function computeAggregate(records: RawRecord[]): AggregateUsage {
@@ -30,6 +31,7 @@ function computeAggregate(records: RawRecord[]): AggregateUsage {
     assistantTurns: 0,
     userTurns: 0,
     models: new Set(),
+    serviceTiers: new Set(),
   }
 
   for (const record of records) {
@@ -37,6 +39,9 @@ function computeAggregate(records: RawRecord[]): AggregateUsage {
       agg.assistantTurns++
       agg.models.add(record.message.model)
       const u = record.message.usage
+      if (u.service_tier && u.service_tier !== 'standard') {
+        agg.serviceTiers.add(u.service_tier)
+      }
       agg.inputTokens += u.input_tokens
       agg.outputTokens += u.output_tokens
       agg.cacheCreationTokens += u.cache_creation_input_tokens
@@ -123,6 +128,12 @@ export function TokenSummaryPanel({ records, visibleTurns, isFiltered }: TokenSu
             <span>
               <span className="font-medium text-gray-700 dark:text-gray-300">Models:</span>{' '}
               {Array.from(total.models).join(', ')}
+            </span>
+          )}
+          {total.serviceTiers.size > 0 && (
+            <span>
+              <span className="font-medium text-gray-700 dark:text-gray-300">Tier:</span>{' '}
+              {Array.from(total.serviceTiers).join(', ')}
             </span>
           )}
           {(subAgent || hasEphemeralTokens) && (

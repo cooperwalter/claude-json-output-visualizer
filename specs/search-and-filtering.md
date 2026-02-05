@@ -41,7 +41,7 @@ A collapsible filter bar adjacent to the search input. Filters are combinable (A
 | Filter | Effect |
 |--------|--------|
 | Errors only | Show only turns containing `is_error: true` tool results |
-| Sub-agent only | Show only turns where `parent_tool_use_id` is non-null |
+| Sub-agent only | Show only turns that contain `Task` tool_use blocks (i.e., turns that spawn sub-agents). Note: sub-agent turns themselves are rendered as nested timelines inside their parent Task tool call, not as top-level turns. |
 | Text only | Show only turns that contain `type: "text"` content blocks |
 
 #### By Model

@@ -24,9 +24,6 @@ export function TurnCard({ turn, index, forceExpanded, isCurrentMatch, isFocused
 
   const subAgentType = getSubAgentType(turn)
 
-  const model =
-    turn.records[0]?.type === 'assistant' ? turn.records[0].message.model : undefined
-
   return (
     <div
       id={`turn-${turn.messageId}`}
@@ -71,12 +68,6 @@ export function TurnCard({ turn, index, forceExpanded, isCurrentMatch, isFocused
             getSummary(turn)
           )}
         </div>
-
-        {model && (
-          <span className="text-xs text-gray-400 dark:text-gray-500 shrink-0 hidden sm:inline">
-            {formatModel(model)}
-          </span>
-        )}
 
         <ContentTypeIcons blocks={turn.contentBlocks} />
       </div>
@@ -158,14 +149,6 @@ function getSubAgentType(turn: ConversationTurn): string | undefined {
     }
   }
   return undefined
-}
-
-function formatModel(model: string): string {
-  const match = model.match(/-(\d{8})$/)
-  if (match) {
-    return model.slice(0, -match[0].length)
-  }
-  return model
 }
 
 function ContentTypeIcons({ blocks }: { blocks: ContentBlock[] }) {
