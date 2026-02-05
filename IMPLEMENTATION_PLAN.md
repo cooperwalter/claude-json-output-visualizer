@@ -321,11 +321,13 @@ Build a static single-page application (SPA) that visualizes Claude Code JSONL c
 - `ToolCallView` shows a spinning circle SVG (`animate-spin`) alongside "Awaiting result..." for tool_use blocks without a matching tool_result
 - Replaces the previous text-only `animate-pulse` approach per the spec's "spinner/loading indicator" requirement
 
-### Model Indicator Collapsed by Default
-- Per the conversation-timeline spec, the model indicator should be "collapsed by default"
-- Model name is no longer shown in the `TurnCard` collapsed header
-- Model name is visible in the expanded Metadata section of `MessageDetail`
-- The `formatModel` utility was removed from `TurnCard` since it's no longer needed there
+### Model Indicator on TurnCard
+- The conversation-timeline spec lists "Model indicator: Shows model name (collapsed by default)" as a Visual Indicator alongside role badge, error indicator, etc.
+- "Collapsed by default" means the indicator is in a compact/abbreviated form, not hidden — it is a peer of always-visible badges like role and error
+- `TurnCard` renders an abbreviated model badge (e.g., "sonnet-4" for "claude-sonnet-4-20250514") after the role badge, only for assistant turns
+- `formatModelShort` utility in `src/utils/formatModel.ts` strips `claude-` prefix and `-YYYYMMDD` date suffix
+- Full model name available via `title` attribute on hover and in the expanded Metadata section of `MessageDetail`
+- The badge uses muted gray styling (`bg-gray-100 text-gray-500 font-mono`) to not compete with role/error badges
 
 ### SVG Accessibility: aria-label over title
 - SVG `title` prop is not part of `SVGProps<SVGSVGElement>` in React's type definitions
@@ -432,6 +434,21 @@ Build a static single-page application (SPA) that visualizes Claude Code JSONL c
 
 ### Search Match Count Format
 - `SearchBar` now displays "N of M matches" instead of "N of M" per the search-and-filtering spec
+
+### RecentSession localStorage Validation
+- `useRecentSessions.ts` now uses a runtime `isRecentSession` type guard to validate each parsed item from localStorage
+- The `parsed.filter(isRecentSession)` pattern silently drops corrupted or schema-incompatible entries
+- Previously used an unsafe `parsed as RecentSession[]` cast that could cause runtime errors on schema changes
+
+### Unused Dependencies Cleanup
+- `react-json-view-lite` was listed in `package.json` dependencies but never imported anywhere — the raw JSON display uses `CodeBlock` + `JSON.stringify` instead
+- Removed from `package.json` to reduce bundle size
+- The `SubAgentNode` type and `buildSubAgentTree` function exist but are not used in the application — the `byParentToolUseId` index is sufficient; kept as they have tests and could be useful for future features
+
+### ESLint react-refresh/only-export-components Rule
+- Exporting non-component functions (e.g., `formatModelShort`) from `.tsx` files triggers `react-refresh/only-export-components` lint error
+- Solution: move non-component utility functions to plain `.ts` files (e.g., `src/utils/formatModel.ts`)
+- This is consistent with the earlier pattern of separating React context creation from provider components
 
 ### Remaining Gaps (Future Work)
 - Search highlighting does not apply inside code blocks within markdown (intentional — highlighting within syntax-highlighted code would conflict with shiki styling)

@@ -4,13 +4,25 @@ import type { RecentSession } from '@/model/types.ts'
 const STORAGE_KEY = 'claude-visualizer-recent-sessions'
 const MAX_SESSIONS = 10
 
+function isRecentSession(value: unknown): value is RecentSession {
+  if (typeof value !== 'object' || value === null) return false
+  const obj = value as Record<string, unknown>
+  return (
+    typeof obj.fileName === 'string' &&
+    typeof obj.fileSize === 'number' &&
+    typeof obj.loadedAt === 'string' &&
+    typeof obj.sessionId === 'string' &&
+    typeof obj.recordCount === 'number'
+  )
+}
+
 function loadSessions(): RecentSession[] {
   try {
     const stored = localStorage.getItem(STORAGE_KEY)
     if (!stored) return []
     const parsed: unknown = JSON.parse(stored)
     if (!Array.isArray(parsed)) return []
-    return parsed as RecentSession[]
+    return parsed.filter(isRecentSession)
   } catch {
     return []
   }

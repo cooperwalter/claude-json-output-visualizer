@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { ConversationTurn, ContentBlock, ToolResultBlock } from '@/model/types.ts'
+import { formatModelShort } from '@/utils/formatModel.ts'
 import { MessageDetail } from './MessageDetail.tsx'
 
 type TurnCardProps = {
@@ -23,6 +24,9 @@ export function TurnCard({ turn, index, forceExpanded, isCurrentMatch, isFocused
   const isSubAgent = turn.parentToolUseId !== null
 
   const subAgentType = getSubAgentType(turn)
+  const model = turn.role === 'assistant' && turn.records[0]?.type === 'assistant'
+    ? turn.records[0].message.model
+    : undefined
 
   return (
     <div
@@ -58,6 +62,15 @@ export function TurnCard({ turn, index, forceExpanded, isCurrentMatch, isFocused
         >
           {isAssistant ? 'Assistant' : 'User'}
         </span>
+
+        {model && (
+          <span
+            className="px-1.5 py-0.5 text-xs font-mono rounded bg-gray-100 text-gray-500 dark:bg-gray-700/50 dark:text-gray-400 shrink-0"
+            title={model}
+          >
+            {formatModelShort(model)}
+          </span>
+        )}
 
         {isSubAgent && (
           <span className="px-1.5 py-0.5 text-xs font-medium rounded bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300 shrink-0">

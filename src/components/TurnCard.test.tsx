@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react'
 import { userEvent } from '@testing-library/user-event'
 import { describe, it, expect } from 'vitest'
 import { TurnCard, HighlightedText } from './TurnCard.tsx'
+import { formatModelShort } from '@/utils/formatModel.ts'
 import type { ConversationTurn, AssistantRecord, UserRecord, ContentBlock } from '@/model/types.ts'
 
 function makeAssistantRecord(overrides: Partial<AssistantRecord> = {}): AssistantRecord {
@@ -191,14 +192,20 @@ describe('TurnCard', () => {
     expect(screen.getByText('Token Usage')).toBeInTheDocument()
   })
 
-  it('should not display model name in collapsed state per spec (collapsed by default)', () => {
+  it('should display abbreviated model name badge on assistant turns in collapsed state', () => {
     const turn = makeTurn([makeAssistantRecord()])
     render(<TurnCard turn={turn} index={0} />)
-    expect(screen.queryByText('claude-sonnet-4')).not.toBeInTheDocument()
-    expect(screen.queryByText('claude-sonnet-4-20250514')).not.toBeInTheDocument()
+    expect(screen.getByText('sonnet-4')).toBeInTheDocument()
+    expect(screen.getByTitle('claude-sonnet-4-20250514')).toBeInTheDocument()
   })
 
-  it('should display model name in metadata section when expanded', async () => {
+  it('should not display model badge on user turns', () => {
+    const turn = makeTurn([makeUserRecord()], { role: 'user' })
+    render(<TurnCard turn={turn} index={0} />)
+    expect(screen.queryByTitle(/claude/)).not.toBeInTheDocument()
+  })
+
+  it('should display full model name in metadata section when expanded', async () => {
     const user = userEvent.setup()
     const turn = makeTurn([makeAssistantRecord()])
     render(<TurnCard turn={turn} index={0} />)
@@ -250,5 +257,25 @@ describe('HighlightedText', () => {
     const { container } = render(<HighlightedText text="foo bar foo baz foo" query="foo" />)
     const marks = container.querySelectorAll('mark')
     expect(marks.length).toBe(3)
+  })
+})
+
+describe('formatModelShort', () => {
+  it('should strip claude- prefix and date suffix from standard model names', () => {
+    expect(formatModelShort('claude-sonnet-4-20250514')).toBe('sonnet-4')
+    expect(formatModelShort('claude-opus-4-5-20251101')).toBe('opus-4-5')
+    expect(formatModelShort('claude-haiku-3-5-20241022')).toBe('haiku-3-5')
+  })
+
+  it('should handle older model name formats', () => {
+    expect(formatModelShort('claude-3-5-sonnet-20241022')).toBe('3-5-sonnet')
+  })
+
+  it('should pass through non-Claude model names unchanged', () => {
+    expect(formatModelShort('gpt-4')).toBe('gpt-4')
+  })
+
+  it('should handle model names without date suffix', () => {
+    expect(formatModelShort('claude-sonnet-4')).toBe('sonnet-4')
   })
 })
