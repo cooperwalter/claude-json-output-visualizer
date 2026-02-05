@@ -73,7 +73,9 @@ export function ToolCallView({ toolUse, toolResult, toolResultMeta, searchQuery 
             </span>
             {!expanded && toolResult && (
               <span className="text-xs text-red-600 dark:text-red-400 truncate min-w-0">
-                {toolResult.content.length > 80 ? toolResult.content.slice(0, 80) + '...' : toolResult.content}
+                {searchQuery
+                  ? <HighlightedText text={toolResult.content.length > 80 ? toolResult.content.slice(0, 80) + '...' : toolResult.content} query={searchQuery} />
+                  : (toolResult.content.length > 80 ? toolResult.content.slice(0, 80) + '...' : toolResult.content)}
               </span>
             )}
           </>
@@ -102,7 +104,9 @@ export function ToolCallView({ toolUse, toolResult, toolResultMeta, searchQuery 
             </summary>
             <div className="relative">
               <pre className="mt-1 font-mono bg-white dark:bg-gray-900 rounded p-2 overflow-x-auto text-gray-700 dark:text-gray-300">
-                {JSON.stringify(toolUse.input, null, 2)}
+                {searchQuery
+                  ? <HighlightedText text={JSON.stringify(toolUse.input, null, 2)} query={searchQuery} />
+                  : JSON.stringify(toolUse.input, null, 2)}
               </pre>
               <button
                 onClick={(e) => {
@@ -123,6 +127,7 @@ export function ToolCallView({ toolUse, toolResult, toolResultMeta, searchQuery 
                 toolUse={toolUse}
                 toolResult={toolResult}
                 meta={toolResultMeta}
+                searchQuery={searchQuery}
               />
               <button
                 onClick={(e) => {
@@ -146,32 +151,34 @@ function ToolResultRenderer({
   toolUse,
   toolResult,
   meta,
+  searchQuery,
 }: {
   toolName: string
   toolUse: ToolUseContentBlock
   toolResult: ToolResultBlock
   meta?: ToolUseResultMeta
+  searchQuery?: string
 }) {
   switch (toolName) {
     case 'Read':
-      return <ReadResult toolUse={toolUse} toolResult={toolResult} meta={meta} />
+      return <ReadResult toolUse={toolUse} toolResult={toolResult} meta={meta} searchQuery={searchQuery} />
     case 'Bash':
-      return <BashResult toolUse={toolUse} toolResult={toolResult} />
+      return <BashResult toolUse={toolUse} toolResult={toolResult} searchQuery={searchQuery} />
     case 'Edit':
-      return <EditResult toolUse={toolUse} toolResult={toolResult} />
+      return <EditResult toolUse={toolUse} toolResult={toolResult} searchQuery={searchQuery} />
     case 'Grep':
-      return <GrepResult toolUse={toolUse} toolResult={toolResult} />
+      return <GrepResult toolUse={toolUse} toolResult={toolResult} searchQuery={searchQuery} />
     case 'Glob':
-      return <GlobResult toolResult={toolResult} />
+      return <GlobResult toolResult={toolResult} searchQuery={searchQuery} />
     case 'Write':
-      return <WriteResult toolUse={toolUse} toolResult={toolResult} />
+      return <WriteResult toolUse={toolUse} toolResult={toolResult} searchQuery={searchQuery} />
     case 'Task':
-      return <TaskResult toolUse={toolUse} toolResult={toolResult} meta={meta} />
+      return <TaskResult toolUse={toolUse} toolResult={toolResult} meta={meta} searchQuery={searchQuery} />
     case 'TodoWrite':
-      return <TodoWriteResult meta={meta} />
+      return <TodoWriteResult meta={meta} searchQuery={searchQuery} />
     case 'WebFetch':
-      return <WebFetchResult toolUse={toolUse} toolResult={toolResult} />
+      return <WebFetchResult toolUse={toolUse} toolResult={toolResult} searchQuery={searchQuery} />
     default:
-      return <DefaultResult toolUse={toolUse} toolResult={toolResult} />
+      return <DefaultResult toolUse={toolUse} toolResult={toolResult} searchQuery={searchQuery} />
   }
 }

@@ -49,7 +49,7 @@ function App() {
       }
     }
 
-    const meta = { fileName, fileSize, sessionId }
+    const meta = { fileName, fileSize, sessionId, loadedAt: new Date().toISOString() }
 
     const recordCount = text.split('\n').filter((line) => {
       try {
@@ -101,6 +101,7 @@ function App() {
           records={state.records}
           visibleTurns={visibleTurns}
           isFiltered={filterHook.isActive || search.isActive}
+          indexes={state.indexes}
         />
 
         <div className="sticky top-[41px] z-10 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-2 space-y-2">

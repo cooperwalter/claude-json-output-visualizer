@@ -353,8 +353,30 @@ Build a static single-page application (SPA) that visualizes Claude Code JSONL c
 - This was inconsistent with the architecture — sub-agent turns are filtered out of the top-level timeline by design
 - Spec updated to match implementation: filter shows turns that contain Task tool_use blocks (turns that spawn sub-agents)
 
+### Search Highlighting in Tool Result Components
+- All specialized tool result components (ReadResult, BashResult, EditResult, GrepResult, GlobResult, WriteResult, TaskResult, TodoWriteResult, WebFetchResult, DefaultResult) now accept an optional `searchQuery` prop
+- When `searchQuery` is active, text content in tool results is highlighted using `HighlightedText` from TurnCard
+- For code-highlighted content (ReadResult, BashResult, EditResult), when search is active, rendering falls back to plain `<pre>` with `HighlightedText` instead of Shiki syntax highlighting — this ensures search matches are visible
+- Tool input parameters in `ToolCallView` are also search-highlighted when expanded
+- Error content in collapsed `ToolCallView` is now search-highlighted
+- `TaskResult` passes `searchQuery` to nested `TurnCard` components in sub-agent timelines
+- `ToolResultRenderer` in `ToolCallView` passes `searchQuery` through to all result components
+
+### Search Highlighting in Markdown Elements
+- `MessageDetail` markdown rendering now highlights search matches in: `h1`-`h6`, `blockquote`, `td`, `th`, `strong`, `em` (in addition to existing `p` and `li`)
+- Uses the same `HighlightedTextInChildren` helper pattern for all elements
+
+### Token Summary Sub-Agent Aggregation Fix
+- `TokenSummaryPanel` now accepts an optional `indexes` prop (`IndexMaps`)
+- When filters are active, `recordsFromTurns` also collects sub-agent records via `indexes.byParentToolUseId` for any Task tool_use blocks in visible turns
+- This fixes sub-agent tokens being excluded from the filtered token summary
+
+### SessionMeta loadedAt Field
+- `SessionMeta` type now includes `loadedAt: string` (ISO timestamp)
+- Set at file load time in `App.tsx`, consistent with the timestamp stored in `RecentSession`
+
 ### Remaining Gaps (Future Work)
 - TokenUsageDetail component: Per-message usage is handled inline in MessageDetail, not as a separate component
 - Search highlighting does not apply inside code blocks within markdown (intentional — highlighting within syntax-highlighted code would conflict with shiki styling)
-- Search highlighting does not propagate into specialized tool result components (ReadResult, BashResult, etc.) — only collapsed previews are highlighted
-- SessionMeta type does not include loadedAt or recordCount (these are tracked separately via RecentSession and state.records.length)
+- Search does not cover sub-agent turns in the search index (sub-agent records are excluded from `state.turns`). Sub-agent content is searchable visually when the user expands a Task tool call, but sub-agent turns do not appear in search match counts or navigation
+- SessionMeta type does not include recordCount (tracked separately via state.records.length)

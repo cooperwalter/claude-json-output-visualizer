@@ -3,14 +3,16 @@ import type { ToolUseContentBlock, ToolResultBlock, ToolUseResultMeta } from '@/
 import { groupIntoTurns } from '@/model/grouper.ts'
 import { useConversation } from '@/hooks/useConversation.ts'
 import { TurnCard } from '@/components/TurnCard.tsx'
+import { HighlightedText } from '@/components/TurnCard.tsx'
 
 type TaskResultProps = {
   toolUse: ToolUseContentBlock
   toolResult: ToolResultBlock
   meta?: ToolUseResultMeta
+  searchQuery?: string
 }
 
-export function TaskResult({ toolUse, toolResult, meta }: TaskResultProps) {
+export function TaskResult({ toolUse, toolResult, meta, searchQuery }: TaskResultProps) {
   const { state } = useConversation()
   const [showTimeline, setShowTimeline] = useState(true)
   const [showMetadata, setShowMetadata] = useState(false)
@@ -33,7 +35,7 @@ export function TaskResult({ toolUse, toolResult, meta }: TaskResultProps) {
         )}
         {description && (
           <span className="text-xs text-gray-600 dark:text-gray-400 truncate">
-            {description}
+            {searchQuery ? <HighlightedText text={description} query={searchQuery} /> : description}
           </span>
         )}
       </div>
@@ -110,14 +112,16 @@ export function TaskResult({ toolUse, toolResult, meta }: TaskResultProps) {
           {showTimeline && (
             <div className="border-l-2 border-purple-300 dark:border-purple-700 pl-3 space-y-2">
               {subAgentTurns.map((turn, index) => (
-                <TurnCard key={turn.messageId} turn={turn} index={index} />
+                <TurnCard key={turn.messageId} turn={turn} index={index} searchQuery={searchQuery} />
               ))}
             </div>
           )}
         </div>
       ) : (
         <pre className="text-xs font-mono bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 rounded p-3 overflow-x-auto max-h-96">
-          {toolResult.content}
+          {searchQuery
+            ? <HighlightedText text={toolResult.content} query={searchQuery} />
+            : toolResult.content}
         </pre>
       )}
     </div>

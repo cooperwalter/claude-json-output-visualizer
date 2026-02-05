@@ -1,10 +1,11 @@
 import { useState, useMemo } from 'react'
-import type { RawRecord, ConversationTurn } from '@/model/types.ts'
+import type { RawRecord, ConversationTurn, IndexMaps } from '@/model/types.ts'
 
 type TokenSummaryPanelProps = {
   records: RawRecord[]
   visibleTurns?: ConversationTurn[]
   isFiltered?: boolean
+  indexes?: IndexMaps
 }
 
 type AggregateUsage = {
@@ -58,23 +59,44 @@ function computeAggregate(records: RawRecord[]): AggregateUsage {
   return agg
 }
 
-function recordsFromTurns(turns: ConversationTurn[]): RawRecord[] {
+function recordsFromTurns(turns: ConversationTurn[], indexes?: IndexMaps): RawRecord[] {
   const records: RawRecord[] = []
+  const seen = new Set<string>()
+
   for (const turn of turns) {
     for (const record of turn.records) {
-      records.push(record)
+      if (!seen.has(record.uuid)) {
+        seen.add(record.uuid)
+        records.push(record)
+      }
+    }
+
+    if (indexes) {
+      for (const block of turn.contentBlocks) {
+        if (block.type === 'tool_use' && block.name === 'Task') {
+          const subRecords = indexes.byParentToolUseId.get(block.id)
+          if (subRecords) {
+            for (const sr of subRecords) {
+              if (!seen.has(sr.uuid)) {
+                seen.add(sr.uuid)
+                records.push(sr)
+              }
+            }
+          }
+        }
+      }
     }
   }
   return records
 }
 
-export function TokenSummaryPanel({ records, visibleTurns, isFiltered }: TokenSummaryPanelProps) {
+export function TokenSummaryPanel({ records, visibleTurns, isFiltered, indexes }: TokenSummaryPanelProps) {
   const [showDetails, setShowDetails] = useState(false)
 
   const filteredRecords = useMemo(() => {
     if (!isFiltered || !visibleTurns) return null
-    return recordsFromTurns(visibleTurns)
-  }, [isFiltered, visibleTurns])
+    return recordsFromTurns(visibleTurns, indexes)
+  }, [isFiltered, visibleTurns, indexes])
 
   const displayRecords = filteredRecords ?? records
   const mainRecords = displayRecords.filter((r) => r.parent_tool_use_id === null)

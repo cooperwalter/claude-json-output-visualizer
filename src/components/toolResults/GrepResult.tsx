@@ -1,10 +1,12 @@
 import { useMemo } from 'react'
 import type { ToolResultBlock, ToolUseContentBlock } from '@/model/types.ts'
 import { FilePathHeader } from '@/components/FilePathHeader.tsx'
+import { HighlightedText } from '@/components/TurnCard.tsx'
 
 type GrepResultProps = {
   toolUse?: ToolUseContentBlock
   toolResult: ToolResultBlock
+  searchQuery?: string
 }
 
 type GrepLine = {
@@ -56,7 +58,7 @@ function parseGrepOutput(content: string): GrepLine[] {
   return parsed
 }
 
-export function GrepResult({ toolResult }: GrepResultProps) {
+export function GrepResult({ toolResult, searchQuery }: GrepResultProps) {
   const parsedLines = useMemo(() => parseGrepOutput(toolResult.content), [toolResult.content])
 
   const hasStructuredOutput = parsedLines.some((l) => l.type === 'match' || l.type === 'file_header')
@@ -64,7 +66,9 @@ export function GrepResult({ toolResult }: GrepResultProps) {
   if (!hasStructuredOutput) {
     return (
       <pre className="text-xs font-mono bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 rounded p-3 overflow-x-auto max-h-96 leading-relaxed">
-        {toolResult.content}
+        {searchQuery
+          ? <HighlightedText text={toolResult.content} query={searchQuery} />
+          : toolResult.content}
       </pre>
     )
   }
@@ -93,7 +97,9 @@ export function GrepResult({ toolResult }: GrepResultProps) {
                   {line.lineNumber}
                 </span>
                 <span className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-all">
-                  {line.text}
+                  {searchQuery
+                    ? <HighlightedText text={line.text} query={searchQuery} />
+                    : line.text}
                 </span>
               </div>
             </div>
@@ -110,7 +116,9 @@ export function GrepResult({ toolResult }: GrepResultProps) {
 
         return (
           <div key={i} className="text-gray-600 dark:text-gray-400 whitespace-pre-wrap">
-            {line.text}
+            {searchQuery
+              ? <HighlightedText text={line.text} query={searchQuery} />
+              : line.text}
           </div>
         )
       })}

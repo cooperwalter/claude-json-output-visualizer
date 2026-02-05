@@ -1,7 +1,9 @@
 import type { ToolUseResultMeta, Todo } from '@/model/types.ts'
+import { HighlightedText } from '@/components/TurnCard.tsx'
 
 type TodoWriteResultProps = {
   meta?: ToolUseResultMeta
+  searchQuery?: string
 }
 
 type DiffEntry = {
@@ -43,7 +45,7 @@ function diffTodos(oldTodos: Todo[], newTodos: Todo[]): DiffEntry[] {
   return entries
 }
 
-export function TodoWriteResult({ meta }: TodoWriteResultProps) {
+export function TodoWriteResult({ meta, searchQuery }: TodoWriteResultProps) {
   const oldTodos = meta?.oldTodos ?? []
   const newTodos = meta?.newTodos ?? []
 
@@ -66,7 +68,11 @@ export function TodoWriteResult({ meta }: TodoWriteResultProps) {
         >
           <span className="shrink-0">{diffIcon(entry.change)}</span>
           <span className="font-medium shrink-0">[{entry.todo.status}]</span>
-          <span className="truncate">{entry.todo.content}</span>
+          <span className="truncate">
+            {searchQuery
+              ? <HighlightedText text={entry.todo.content} query={searchQuery} />
+              : entry.todo.content}
+          </span>
           {entry.change === 'status_changed' && entry.oldStatus && (
             <span className="shrink-0 text-amber-600 dark:text-amber-400">
               (was: {entry.oldStatus})

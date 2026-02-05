@@ -7,6 +7,7 @@ export type SessionMeta = {
   fileName: string
   fileSize: number
   sessionId: string
+  loadedAt: string
 }
 
 export type AppStatus = 'empty' | 'loading' | 'paused' | 'active'

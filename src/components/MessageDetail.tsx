@@ -164,6 +164,39 @@ function ContentBlockView({
             li({ children }) {
               return <li><HighlightedTextInChildren query={searchQuery}>{children}</HighlightedTextInChildren></li>
             },
+            h1({ children }) {
+              return <h1><HighlightedTextInChildren query={searchQuery}>{children}</HighlightedTextInChildren></h1>
+            },
+            h2({ children }) {
+              return <h2><HighlightedTextInChildren query={searchQuery}>{children}</HighlightedTextInChildren></h2>
+            },
+            h3({ children }) {
+              return <h3><HighlightedTextInChildren query={searchQuery}>{children}</HighlightedTextInChildren></h3>
+            },
+            h4({ children }) {
+              return <h4><HighlightedTextInChildren query={searchQuery}>{children}</HighlightedTextInChildren></h4>
+            },
+            h5({ children }) {
+              return <h5><HighlightedTextInChildren query={searchQuery}>{children}</HighlightedTextInChildren></h5>
+            },
+            h6({ children }) {
+              return <h6><HighlightedTextInChildren query={searchQuery}>{children}</HighlightedTextInChildren></h6>
+            },
+            blockquote({ children }) {
+              return <blockquote><HighlightedTextInChildren query={searchQuery}>{children}</HighlightedTextInChildren></blockquote>
+            },
+            td({ children }) {
+              return <td><HighlightedTextInChildren query={searchQuery}>{children}</HighlightedTextInChildren></td>
+            },
+            th({ children }) {
+              return <th><HighlightedTextInChildren query={searchQuery}>{children}</HighlightedTextInChildren></th>
+            },
+            strong({ children }) {
+              return <strong><HighlightedTextInChildren query={searchQuery}>{children}</HighlightedTextInChildren></strong>
+            },
+            em({ children }) {
+              return <em><HighlightedTextInChildren query={searchQuery}>{children}</HighlightedTextInChildren></em>
+            },
           }}>{block.text}</Markdown>
         </div>
       )

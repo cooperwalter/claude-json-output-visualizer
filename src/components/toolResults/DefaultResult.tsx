@@ -1,11 +1,13 @@
 import type { ToolUseContentBlock, ToolResultBlock } from '@/model/types.ts'
+import { HighlightedText } from '@/components/TurnCard.tsx'
 
 type DefaultResultProps = {
   toolUse: ToolUseContentBlock
   toolResult: ToolResultBlock
+  searchQuery?: string
 }
 
-export function DefaultResult({ toolUse, toolResult }: DefaultResultProps) {
+export function DefaultResult({ toolUse, toolResult, searchQuery }: DefaultResultProps) {
   return (
     <div className="space-y-2">
       <details className="text-xs">
@@ -13,11 +15,15 @@ export function DefaultResult({ toolUse, toolResult }: DefaultResultProps) {
           Input ({toolUse.name})
         </summary>
         <pre className="mt-1 font-mono bg-white dark:bg-gray-900 rounded p-2 overflow-x-auto text-gray-700 dark:text-gray-300">
-          {JSON.stringify(toolUse.input, null, 2)}
+          {searchQuery
+            ? <HighlightedText text={JSON.stringify(toolUse.input, null, 2)} query={searchQuery} />
+            : JSON.stringify(toolUse.input, null, 2)}
         </pre>
       </details>
       <pre className="text-xs font-mono bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 rounded p-3 overflow-x-auto max-h-96">
-        {toolResult.content}
+        {searchQuery
+          ? <HighlightedText text={toolResult.content} query={searchQuery} />
+          : toolResult.content}
       </pre>
     </div>
   )
