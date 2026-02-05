@@ -66,9 +66,15 @@ All 11 phases are fully implemented and verified against specs:
 
 ---
 
-## Spec Compliance Audit (v0.0.22)
+## Spec Compliance Audit (v0.0.23)
 
 Full audit of all 9 spec files completed. All spec requirements fully implemented.
+
+### Resolved in v0.0.23
+- ConversationTimeline: `outline-none` + `tabIndex={-1}` on feed container so Escape→focus-timeline works
+- MessageDetail: reordered toggle buttons and sections to consistent Raw JSON → Metadata → Token Usage
+- SearchBar: after Escape clears search, focus returns to `[role="feed"]` timeline element
+- ToolCallView: copy button hover uses `group-hover/input` for correct nested hover scope
 
 ### Resolved in v0.0.22
 - Fixed build failure: `TokenUsageDetail.tsx` — `cache_creation?.ephemeral_*` properties needed nullish coalescing (`?? 0`) for safe comparison
