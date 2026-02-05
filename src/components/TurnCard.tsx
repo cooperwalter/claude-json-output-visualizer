@@ -27,12 +27,22 @@ export function TurnCard({ turn, index, forceExpanded, isCurrentMatch, isFocused
   return (
     <div
       id={`turn-${turn.messageId}`}
+      role="article"
+      aria-label={`${isAssistant ? 'Assistant' : 'User'} message ${index + 1}${hasError ? ', contains error' : ''}${isSubAgent ? ', sub-agent' : ''}`}
+      aria-expanded={expanded}
+      tabIndex={0}
       className={`rounded-lg border transition-colors cursor-pointer ${
         isAssistant
           ? 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
           : 'bg-gray-50 dark:bg-gray-850 border-gray-200 dark:border-gray-700 ml-8'
       } ${hasError ? 'border-red-300 dark:border-red-700' : ''} ${isCurrentMatch ? 'ring-2 ring-blue-500 dark:ring-blue-400' : ''} ${isFocused ? 'ring-2 ring-indigo-400 dark:ring-indigo-500' : ''}`}
       onClick={() => setUserExpanded(!userExpanded)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          setUserExpanded(!userExpanded)
+        }
+      }}
     >
       <div className="px-4 py-3 flex items-center gap-3">
         <span className="text-xs text-gray-400 dark:text-gray-500 font-mono w-6 shrink-0 text-right">

@@ -99,7 +99,7 @@ export function ConversationTimeline({
 
   if (turns.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 text-gray-500 dark:text-gray-400 gap-2">
+      <div className="flex flex-col items-center justify-center h-64 text-gray-500 dark:text-gray-400 gap-2" role="status">
         <span>No matching messages</span>
         {hasActiveFilters && onClearFilters && (
           <button
@@ -127,7 +127,7 @@ export function ConversationTimeline({
   }
 
   return (
-    <div ref={containerRef} className="max-w-4xl mx-auto px-4 py-6 space-y-3">
+    <div ref={containerRef} className="max-w-4xl mx-auto px-4 py-6 space-y-3" role="feed" aria-label="Conversation messages">
       {turns.map((turn, index) => (
         <TurnCard
           key={turn.messageId}

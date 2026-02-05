@@ -1,5 +1,6 @@
 import type { SessionMeta } from '@/hooks/useAppState.ts'
 import type { AppStatus } from '@/hooks/useAppState.ts'
+import { DarkModeToggle } from '@/components/DarkModeToggle.tsx'
 
 type SessionHeaderProps = {
   meta: SessionMeta
@@ -61,6 +62,7 @@ export function SessionHeader({
         >
           Load new file
         </button>
+        <DarkModeToggle />
       </div>
     </header>
   )

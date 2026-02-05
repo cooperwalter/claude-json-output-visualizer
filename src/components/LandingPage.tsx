@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import type { RecentSession } from '@/model/types.ts'
 import { handleDragOver, handleDrop, readFileAsText } from '@/utils/fileLoader.ts'
+import { DarkModeToggle } from '@/components/DarkModeToggle.tsx'
 
 type LandingPageProps = {
   recentSessions: RecentSession[]
@@ -29,6 +30,9 @@ export function LandingPage({ recentSessions, onFileLoaded, onClearHistory }: La
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
+      <div className="absolute top-4 right-4">
+        <DarkModeToggle />
+      </div>
       <div className="max-w-2xl w-full space-y-6">
         <div className="text-center">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">

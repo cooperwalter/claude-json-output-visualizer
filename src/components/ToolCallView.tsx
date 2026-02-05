@@ -38,10 +38,12 @@ export function ToolCallView({ toolUse, toolResult, toolResultMeta, searchQuery 
           e.stopPropagation()
           setExpanded(!expanded)
         }}
+        aria-expanded={expanded}
+        aria-label={`${toolUse.name} tool call${isError ? ', error' : ''}${isPending ? ', awaiting result' : ''}`}
         className="w-full px-3 py-2 flex items-center gap-2 text-left hover:bg-gray-100 dark:hover:bg-gray-800 rounded-t"
       >
         <span className="text-xs text-gray-400">{expanded ? '▼' : '▶'}</span>
-        <svg className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400 shrink-0" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400 shrink-0" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <path d="M9.4 5.2L10.8 3.8a1.5 1.5 0 112.1 2.1L11.5 7.3M6.6 10.8L5.2 12.2a1.5 1.5 0 11-2.1-2.1L4.5 8.7M6 10L10 6" />
         </svg>
         <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -113,6 +115,7 @@ export function ToolCallView({ toolUse, toolResult, toolResultMeta, searchQuery 
                   e.stopPropagation()
                   navigator.clipboard.writeText(JSON.stringify(toolUse.input, null, 2))
                 }}
+                aria-label="Copy input parameters"
                 className="absolute top-2 right-2 opacity-0 hover:opacity-100 focus:opacity-100 transition-opacity text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 bg-white dark:bg-gray-800 px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-600"
               >
                 Copy
@@ -134,6 +137,7 @@ export function ToolCallView({ toolUse, toolResult, toolResultMeta, searchQuery 
                   e.stopPropagation()
                   navigator.clipboard.writeText(toolResult.content)
                 }}
+                aria-label="Copy tool result"
                 className="absolute top-0 right-0 opacity-0 group-hover/result:opacity-100 focus:opacity-100 transition-opacity text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 bg-white dark:bg-gray-800 px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-600"
               >
                 Copy result

@@ -84,7 +84,7 @@ function App() {
   return (
     <ErrorBoundary>
     <ConversationProvider state={state} dispatch={dispatch}>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
         {state.sessionMeta && (
           <SessionHeader
             meta={state.sessionMeta}
@@ -131,7 +131,7 @@ function App() {
         </div>
 
         {state.error && (
-          <div className="max-w-4xl mx-auto px-4 py-4">
+          <div className="max-w-4xl mx-auto px-4 py-4" role="alert">
             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg p-4 text-sm text-red-700 dark:text-red-300">
               {state.error}
             </div>
@@ -149,7 +149,7 @@ function App() {
             onClearFilters={() => { filterHook.clearFilters(); search.clearSearch(); }}
           />
         </ErrorBoundary>
-      </div>
+      </main>
     </ConversationProvider>
     </ErrorBoundary>
   )

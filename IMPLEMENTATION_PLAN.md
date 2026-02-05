@@ -375,8 +375,29 @@ Build a static single-page application (SPA) that visualizes Claude Code JSONL c
 - `SessionMeta` type now includes `loadedAt: string` (ISO timestamp)
 - Set at file load time in `App.tsx`, consistent with the timestamp stored in `RecentSession`
 
+### Dark Mode Toggle
+- Tailwind v4 uses `@custom-variant dark (&:where(.dark, .dark *))` in `index.css` to enable class-based dark mode
+- `useDarkMode` hook manages theme state (`light`, `dark`, `system`) with localStorage persistence under key `theme-preference`
+- `DarkModeToggle` component cycles through light → dark → system with sun/moon/monitor icons
+- FOUC prevention script in `index.html` reads localStorage and applies `dark` class before React hydrates
+- `CodeBlock.tsx` already had dual detection (`classList.contains('dark')` + `prefers-color-scheme`), which works with class-based approach
+- Toggle placed in `SessionHeader` (active session) and `LandingPage` (empty state, top-right corner)
+
+### Accessibility Improvements
+- `SearchBar`: `role="search"`, `aria-label` on search input, `aria-describedby` linking to match count, `aria-live="polite"` on match count, `aria-label` on nav buttons
+- `FilterBar`: `aria-expanded` on toggle, `aria-controls` linking to panel, `fieldset`/`legend` for filter groups, `aria-pressed` on toggle buttons, `role="radiogroup"` for exclusive selections, `aria-label` on model select
+- `TurnCard`: `role="article"`, `aria-label` with role/index/status, `aria-expanded`, `tabIndex={0}`, Enter/Space keyboard toggle
+- `ToolCallView`: `aria-expanded` and `aria-label` on expand button, `aria-hidden="true"` on decorative SVG, `aria-label` on copy buttons
+- `MessageDetail`: `aria-expanded` on metadata/JSON toggles, `aria-label` on all copy buttons
+- `ConversationTimeline`: `role="feed"` with `aria-label` on main list, `role="status"` on empty state
+- `App.tsx`: `<main>` element replaces `<div>` for proper landmark, `role="alert"` on error display
+
+### SessionMeta recordCount Design Decision
+- `SessionMeta` intentionally does not include `recordCount` — the count changes during streaming parse
+- `state.records.length` provides the live, accurate count passed to `SessionHeader` as a prop
+- `RecentSession` (localStorage) includes `recordCount` as a snapshot taken after parse completes
+
 ### Remaining Gaps (Future Work)
 - TokenUsageDetail component: Per-message usage is handled inline in MessageDetail, not as a separate component
 - Search highlighting does not apply inside code blocks within markdown (intentional — highlighting within syntax-highlighted code would conflict with shiki styling)
 - Search does not cover sub-agent turns in the search index (sub-agent records are excluded from `state.turns`). Sub-agent content is searchable visually when the user expands a Task tool call, but sub-agent turns do not appear in search match counts or navigation
-- SessionMeta type does not include recordCount (tracked separately via state.records.length)
