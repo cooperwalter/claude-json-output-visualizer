@@ -397,7 +397,23 @@ Build a static single-page application (SPA) that visualizes Claude Code JSONL c
 - `state.records.length` provides the live, accurate count passed to `SessionHeader` as a prop
 - `RecentSession` (localStorage) includes `recordCount` as a snapshot taken after parse completes
 
+### Sub-Agent Search Indexing
+- `useSearch` now accepts `IndexMaps` as a second parameter and recursively searches sub-agent records
+- `subAgentMatchesSearch` iterates over all `tool_use` blocks in a turn, looks up sub-agent records via `byParentToolUseId`, groups them into turns, and checks if any match the query
+- Recursion handles arbitrarily nested sub-agents (sub-agent spawning sub-agent)
+- When a sub-agent turn matches, the parent top-level turn is the match target — sub-agent turns never appear in the main timeline
+- The parent turn is auto-expanded and highlighted; search highlighting in expanded sub-agent timelines was already working via `searchQuery` prop threading
+
+### Tool Name Filter Paired Results
+- `useFilters` now accepts `IndexMaps` as a second parameter
+- When tool name filter is active, user turns containing `tool_result` blocks whose `tool_use_id` maps to a filtered tool name (via `byToolUseId` index) are also included
+- This ensures user result turns are not hidden when filtering by tool name
+
+### TokenUsageDetail Component
+- Extracted `TokenUsageDetail.tsx` as a reusable component for per-message token usage display
+- Accepts `Usage` object, optional `showServiceTier` flag, and optional `className` for layout customization
+- Replaces inline token usage grids in both `MessageDetail.tsx` and `TaskResult.tsx`
+- Eliminates code duplication between the two components
+
 ### Remaining Gaps (Future Work)
-- TokenUsageDetail component: Per-message usage is handled inline in MessageDetail, not as a separate component
 - Search highlighting does not apply inside code blocks within markdown (intentional — highlighting within syntax-highlighted code would conflict with shiki styling)
-- Search does not cover sub-agent turns in the search index (sub-agent records are excluded from `state.turns`). Sub-agent content is searchable visually when the user expands a Task tool call, but sub-agent turns do not appear in search match counts or navigation

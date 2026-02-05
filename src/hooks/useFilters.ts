@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from 'react'
-import type { ConversationTurn } from '@/model/types.ts'
+import type { ConversationTurn, IndexMaps } from '@/model/types.ts'
 
 export type RoleFilter = 'all' | 'assistant' | 'user'
 export type StatusFilter = 'all' | 'errors' | 'subagent' | 'text'
@@ -18,7 +18,7 @@ const initialFilterState: FilterState = {
   model: '',
 }
 
-export function useFilters(turns: ConversationTurn[]) {
+export function useFilters(turns: ConversationTurn[], indexes: IndexMaps) {
   const [filters, setFilters] = useState<FilterState>(initialFilterState)
 
   const availableToolNames = useMemo(() => {
@@ -46,8 +46,8 @@ export function useFilters(turns: ConversationTurn[]) {
   }, [turns])
 
   const filteredTurns = useMemo(() => {
-    return turns.filter((turn) => matchesFilters(turn, filters))
-  }, [turns, filters])
+    return turns.filter((turn) => matchesFilters(turn, filters, indexes))
+  }, [turns, filters, indexes])
 
   const setRole = useCallback((role: RoleFilter) => {
     setFilters((prev) => ({ ...prev, role }))
@@ -96,14 +96,22 @@ export function useFilters(turns: ConversationTurn[]) {
   }
 }
 
-function matchesFilters(turn: ConversationTurn, filters: FilterState): boolean {
+function matchesFilters(turn: ConversationTurn, filters: FilterState, indexes: IndexMaps): boolean {
   if (filters.role !== 'all' && turn.role !== filters.role) return false
 
   if (filters.toolNames.size > 0) {
     const turnToolNames = turn.contentBlocks
       .filter((b): b is { type: 'tool_use'; id: string; name: string; input: Record<string, unknown> } => b.type === 'tool_use')
       .map((b) => b.name)
-    if (!turnToolNames.some((n) => filters.toolNames.has(n))) return false
+    const hasMatchingToolUse = turnToolNames.some((n) => filters.toolNames.has(n))
+    const hasMatchingToolResult = turn.records.some((r) => {
+      if (r.type !== 'user') return false
+      return r.message.content.some((block) => {
+        const pair = indexes.byToolUseId.get(block.tool_use_id)
+        return pair && filters.toolNames.has(pair.toolUse.name)
+      })
+    })
+    if (!hasMatchingToolUse && !hasMatchingToolResult) return false
   }
 
   if (filters.status === 'errors') {

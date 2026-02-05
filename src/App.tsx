@@ -18,8 +18,8 @@ function App() {
   const { parseText, stop, resume, reset } = useStreamingParse(dispatch)
   const { sessions, addSession, clearHistory } = useRecentSessions()
 
-  const search = useSearch(state.turns)
-  const filterHook = useFilters(state.turns)
+  const search = useSearch(state.turns, state.indexes)
+  const filterHook = useFilters(state.turns, state.indexes)
 
   const visibleTurns = useMemo(() => {
     let turns = filterHook.filteredTurns

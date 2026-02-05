@@ -3,6 +3,7 @@ import Markdown from 'react-markdown'
 import type { ConversationTurn, ContentBlock, ToolResultBlock } from '@/model/types.ts'
 import { ToolCallView } from './ToolCallView.tsx'
 import { CodeBlock } from './CodeBlock.tsx'
+import { TokenUsageDetail } from './TokenUsageDetail.tsx'
 import { HighlightedText } from './TurnCard.tsx'
 
 type MessageDetailProps = {
@@ -58,21 +59,7 @@ export function MessageDetail({ turn, searchQuery }: MessageDetailProps) {
           <summary className="cursor-pointer hover:text-gray-700 dark:hover:text-gray-300">
             Token Usage
           </summary>
-          <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 pl-4">
-            <span>Input tokens:</span><span>{usage.input_tokens.toLocaleString()}</span>
-            <span>Output tokens:</span><span>{usage.output_tokens.toLocaleString()}</span>
-            <span>Cache creation:</span><span>{usage.cache_creation_input_tokens.toLocaleString()}</span>
-            <span>Cache read:</span><span>{usage.cache_read_input_tokens.toLocaleString()}</span>
-            {usage.cache_creation?.ephemeral_5m_input_tokens > 0 && (
-              <><span>Ephemeral 5m:</span><span>{usage.cache_creation.ephemeral_5m_input_tokens.toLocaleString()}</span></>
-            )}
-            {usage.cache_creation?.ephemeral_1h_input_tokens > 0 && (
-              <><span>Ephemeral 1h:</span><span>{usage.cache_creation.ephemeral_1h_input_tokens.toLocaleString()}</span></>
-            )}
-            {usage.service_tier !== 'standard' && (
-              <><span>Service tier:</span><span>{usage.service_tier}</span></>
-            )}
-          </div>
+          <TokenUsageDetail usage={usage} className="mt-2 gap-y-1 pl-4" />
         </details>
       )}
 

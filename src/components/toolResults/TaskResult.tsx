@@ -4,6 +4,7 @@ import { groupIntoTurns } from '@/model/grouper.ts'
 import { useConversation } from '@/hooks/useConversation.ts'
 import { TurnCard } from '@/components/TurnCard.tsx'
 import { HighlightedText } from '@/components/TurnCard.tsx'
+import { TokenUsageDetail } from '@/components/TokenUsageDetail.tsx'
 
 type TaskResultProps = {
   toolUse: ToolUseContentBlock
@@ -80,18 +81,7 @@ export function TaskResult({ toolUse, toolResult, meta, searchQuery }: TaskResul
                 )}
               </div>
               {meta.usage && (
-                <div className="grid grid-cols-2 gap-x-4 gap-y-0.5 text-xs text-gray-500 dark:text-gray-400 pl-2">
-                  <span>Input tokens:</span><span>{meta.usage.input_tokens.toLocaleString()}</span>
-                  <span>Output tokens:</span><span>{meta.usage.output_tokens.toLocaleString()}</span>
-                  <span>Cache creation:</span><span>{meta.usage.cache_creation_input_tokens.toLocaleString()}</span>
-                  <span>Cache read:</span><span>{meta.usage.cache_read_input_tokens.toLocaleString()}</span>
-                  {meta.usage.cache_creation?.ephemeral_5m_input_tokens > 0 && (
-                    <><span>Ephemeral 5m:</span><span>{meta.usage.cache_creation.ephemeral_5m_input_tokens.toLocaleString()}</span></>
-                  )}
-                  {meta.usage.cache_creation?.ephemeral_1h_input_tokens > 0 && (
-                    <><span>Ephemeral 1h:</span><span>{meta.usage.cache_creation.ephemeral_1h_input_tokens.toLocaleString()}</span></>
-                  )}
-                </div>
+                <TokenUsageDetail usage={meta.usage} showServiceTier={false} className="pl-2" />
               )}
             </div>
           )}

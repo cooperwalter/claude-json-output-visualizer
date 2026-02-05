@@ -1,7 +1,8 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
-import type { ConversationTurn, ContentBlock, ToolResultBlock } from '@/model/types.ts'
+import type { ConversationTurn, ContentBlock, ToolResultBlock, IndexMaps } from '@/model/types.ts'
+import { groupIntoTurns } from '@/model/grouper.ts'
 
-export function useSearch(turns: ConversationTurn[]) {
+export function useSearch(turns: ConversationTurn[], indexes: IndexMaps) {
   const [query, setQuery] = useState('')
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -28,12 +29,12 @@ export function useSearch(turns: ConversationTurn[]) {
     const ids = new Set<string>()
 
     for (const turn of turns) {
-      if (turnMatchesSearch(turn, q)) {
+      if (turnMatchesSearch(turn, q, indexes)) {
         ids.add(turn.messageId)
       }
     }
     return ids
-  }, [turns, debouncedQuery])
+  }, [turns, debouncedQuery, indexes])
 
   const orderedMatchIds = useMemo(() => {
     return turns
@@ -81,7 +82,7 @@ export function useSearch(turns: ConversationTurn[]) {
   }
 }
 
-function turnMatchesSearch(turn: ConversationTurn, query: string): boolean {
+function turnMatchesSearch(turn: ConversationTurn, query: string, indexes: IndexMaps): boolean {
   for (const block of turn.contentBlocks) {
     if (contentBlockMatchesSearch(block, query)) return true
   }
@@ -95,6 +96,23 @@ function turnMatchesSearch(turn: ConversationTurn, query: string): boolean {
     }
   }
 
+  if (subAgentMatchesSearch(turn, query, indexes)) return true
+
+  return false
+}
+
+function subAgentMatchesSearch(turn: ConversationTurn, query: string, indexes: IndexMaps): boolean {
+  for (const block of turn.contentBlocks) {
+    if (block.type === 'tool_use') {
+      const subRecords = indexes.byParentToolUseId.get(block.id)
+      if (subRecords && subRecords.length > 0) {
+        const subTurns = groupIntoTurns(subRecords)
+        for (const subTurn of subTurns) {
+          if (turnMatchesSearch(subTurn, query, indexes)) return true
+        }
+      }
+    }
+  }
   return false
 }
 
