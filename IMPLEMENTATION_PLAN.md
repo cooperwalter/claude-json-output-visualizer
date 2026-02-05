@@ -72,8 +72,17 @@ All 11 phases are fully implemented and verified against specs:
 
 Full audit of all 9 spec files completed. All spec requirements fully implemented.
 
+### Resolved in v0.0.26
+- Added tool-type-specific SVG icons via `ToolIcon` component — each tool (Read, Write, Edit, Bash, Grep, Glob, Task, TodoWrite, WebFetch) now has a distinct icon in both `ToolCallView` collapsed state and `TurnCard` content type indicators, matching the spec requirement for `[Icon] ToolName [badge]`
+
 ### Resolved in v0.0.25
 - Updated `specs/data-model.md` to make `cache_creation` optional (`cache_creation?:`) — the actual Claude Code JSONL output does not always include this field, so the spec now matches runtime data and the TypeScript type
+
+### ToolIcon Design
+- `ToolIcon` component in `src/components/ToolIcon.tsx` maps tool names to semantically meaningful SVG icons
+- Read → document with text lines, Write → document with checkmark, Edit → pencil, Bash → terminal, Grep → magnifying glass, Glob → folder tree, Task → play button in box, TodoWrite → checklist, WebFetch → globe
+- Unknown tool names fall back to the original wrench/link icon
+- Used in both `ToolCallView` (collapsed tool header) and `TurnCard` `ContentTypeIcons` (timeline summary)
 
 ### Known Limitations (Data Format)
 - Bash tool results do not differentiate stdout vs stderr — the JSONL data format does not separate them

@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import type { ConversationTurn, ContentBlock, ToolResultBlock } from '@/model/types.ts'
 import { formatModelShort } from '@/utils/formatModel.ts'
+import { ToolIcon } from './ToolIcon.tsx'
 import { MessageDetail } from './MessageDetail.tsx'
 
 type TurnCardProps = {
@@ -186,7 +187,7 @@ function getSubAgentType(turn: ConversationTurn): string | undefined {
 
 function ContentTypeIcons({ blocks }: { blocks: ContentBlock[] }) {
   const hasText = blocks.some((b) => b.type === 'text')
-  const toolCount = blocks.filter((b) => b.type === 'tool_use').length
+  const toolBlocks = blocks.filter((b) => b.type === 'tool_use')
 
   return (
     <div className="flex items-center gap-1.5 shrink-0">
@@ -195,12 +196,13 @@ function ContentTypeIcons({ blocks }: { blocks: ContentBlock[] }) {
           <path d="M3 4h10M3 8h7M3 12h9" />
         </svg>
       )}
-      {toolCount > 0 && (
-        <span className="flex items-center gap-0.5 text-gray-400 dark:text-gray-500" title={`${toolCount} tool call(s)`}>
-          {toolCount > 1 && <span className="text-xs">{toolCount}×</span>}
-          <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M9.4 5.2L10.8 3.8a1.5 1.5 0 112.1 2.1L11.5 7.3M6.6 10.8L5.2 12.2a1.5 1.5 0 11-2.1-2.1L4.5 8.7M6 10L10 6" />
-          </svg>
+      {toolBlocks.length > 0 && (
+        <span className="flex items-center gap-0.5 text-gray-400 dark:text-gray-500" title={`${toolBlocks.length} tool call(s)`}>
+          {toolBlocks.length > 1 && <span className="text-xs">{toolBlocks.length}×</span>}
+          <ToolIcon
+            toolName={toolBlocks[0].type === 'tool_use' ? toolBlocks[0].name : ''}
+            className="w-3.5 h-3.5"
+          />
         </span>
       )}
     </div>
