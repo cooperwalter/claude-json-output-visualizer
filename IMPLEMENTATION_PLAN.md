@@ -326,7 +326,25 @@ Build a static single-page application (SPA) that visualizes Claude Code JSONL c
 - Model names without date suffixes (e.g. `claude-3-opus`) are preserved intact
 - Previously the function blindly removed the last hyphen-separated segment regardless of format
 
+### SVG Accessibility: aria-label over title
+- SVG `title` prop is not part of `SVGProps<SVGSVGElement>` in React's type definitions
+- Use `aria-label` instead for accessible labeling of SVG icons
+- The build (`tsc -b`) uses stricter type checking than `tsc --noEmit` due to `tsconfig.app.json`
+
+### Search Highlighting in Tool Call Views
+- `ToolCallView` now accepts an optional `searchQuery` prop, passed from `MessageDetail` via `ContentBlockView`
+- File paths and command previews in the collapsed tool call header are highlighted with `<mark>` elements when search matches
+- This ensures search matches are visually indicated in tool calls without requiring expansion
+
+### Copy Button Visibility
+- Per the message-detail-view spec, copy buttons are hidden until hover/focus
+- "Copy text" button uses `opacity-0 group-hover/actions:opacity-100 focus:opacity-100 transition-opacity`
+- Raw JSON "Copy" button uses `opacity-0 group-hover/json:opacity-100 focus:opacity-100 transition-opacity`
+- Tool input/result copy buttons already had this pattern via `ToolCallView`
+
 ### Remaining Gaps (Future Work)
 - TokenUsageDetail component: Per-message usage is handled inline in MessageDetail, not as a separate component
 - Search highlighting does not apply inside code blocks within markdown (intentional — highlighting within syntax-highlighted code would conflict with shiki styling)
 - The "Sub-agent only" filter checks for turns containing Task tool_use blocks rather than turns with non-null parentToolUseId (since sub-agent turns are filtered out of the top-level timeline by design)
+- Search highlighting does not propagate into specialized tool result components (ReadResult, BashResult, etc.) — only collapsed previews are highlighted
+- SessionMeta type does not include loadedAt or recordCount (these are tracked separately via RecentSession and state.records.length)

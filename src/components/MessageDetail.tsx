@@ -76,7 +76,7 @@ export function MessageDetail({ turn, searchQuery }: MessageDetailProps) {
         </details>
       )}
 
-      <div className="flex items-center gap-2 pt-2 border-t border-gray-100 dark:border-gray-700">
+      <div className="group/actions flex items-center gap-2 pt-2 border-t border-gray-100 dark:border-gray-700">
         <button
           onClick={() => setShowMetadata(!showMetadata)}
           className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
@@ -97,7 +97,7 @@ export function MessageDetail({ turn, searchQuery }: MessageDetailProps) {
               .join('\n')
             navigator.clipboard.writeText(text)
           }}
-          className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+          className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 opacity-0 group-hover/actions:opacity-100 focus:opacity-100 transition-opacity"
         >
           Copy text
         </button>
@@ -117,11 +117,11 @@ export function MessageDetail({ turn, searchQuery }: MessageDetailProps) {
       )}
 
       {showRawJson && (
-        <div className="relative">
+        <div className="relative group/json">
           <CodeBlock code={JSON.stringify(turn.records, null, 2)} lang="json" />
           <button
             onClick={() => navigator.clipboard.writeText(JSON.stringify(turn.records, null, 2))}
-            className="absolute top-2 right-2 z-10 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 bg-white dark:bg-gray-800 px-2 py-1 rounded border border-gray-200 dark:border-gray-600"
+            className="absolute top-2 right-2 z-10 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 bg-white dark:bg-gray-800 px-2 py-1 rounded border border-gray-200 dark:border-gray-600 opacity-0 group-hover/json:opacity-100 focus:opacity-100 transition-opacity"
           >
             Copy
           </button>
@@ -194,6 +194,7 @@ function ContentBlockView({
         toolUse={block}
         toolResult={toolResult}
         toolResultMeta={meta}
+        searchQuery={searchQuery}
       />
     )
   }

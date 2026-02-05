@@ -175,7 +175,7 @@ function ContentTypeIcons({ blocks }: { blocks: ContentBlock[] }) {
   return (
     <div className="flex items-center gap-1.5 shrink-0">
       {hasText && (
-        <svg className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500" title="Text content" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-label="Text content">
           <path d="M3 4h10M3 8h7M3 12h9" />
         </svg>
       )}

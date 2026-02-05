@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { ToolResultBlock, ToolUseContentBlock, ToolUseResultMeta } from '@/model/types.ts'
+import { HighlightedText } from './TurnCard.tsx'
 import { ReadResult } from './toolResults/ReadResult.tsx'
 import { BashResult } from './toolResults/BashResult.tsx'
 import { EditResult } from './toolResults/EditResult.tsx'
@@ -15,9 +16,10 @@ type ToolCallViewProps = {
   toolUse: ToolUseContentBlock
   toolResult?: ToolResultBlock
   toolResultMeta?: ToolUseResultMeta
+  searchQuery?: string
 }
 
-export function ToolCallView({ toolUse, toolResult, toolResultMeta }: ToolCallViewProps) {
+export function ToolCallView({ toolUse, toolResult, toolResultMeta, searchQuery }: ToolCallViewProps) {
   const [expanded, setExpanded] = useState(false)
 
   const isError = toolResult?.is_error ?? false
@@ -47,7 +49,7 @@ export function ToolCallView({ toolUse, toolResult, toolResultMeta }: ToolCallVi
         </span>
         {!expanded && typeof toolUse.input.file_path === 'string' && (
           <span className="text-xs text-gray-500 dark:text-gray-400 truncate min-w-0 font-mono">
-            {toolUse.input.file_path}
+            {searchQuery ? <HighlightedText text={toolUse.input.file_path as string} query={searchQuery} /> : toolUse.input.file_path as string}
             {toolResultMeta?.file && toolResultMeta.file.totalLines > 0 && (
               <span className="text-gray-400 dark:text-gray-500 ml-1">
                 ({toolResultMeta.file.numLines === toolResultMeta.file.totalLines
@@ -59,7 +61,9 @@ export function ToolCallView({ toolUse, toolResult, toolResultMeta }: ToolCallVi
         )}
         {!expanded && typeof toolUse.input.command === 'string' && (
           <span className="text-xs text-gray-500 dark:text-gray-400 truncate min-w-0 font-mono">
-            $ {toolUse.input.command.length > 60 ? toolUse.input.command.slice(0, 60) + '...' : toolUse.input.command}
+            {searchQuery
+              ? <>$ <HighlightedText text={(toolUse.input.command as string).length > 60 ? (toolUse.input.command as string).slice(0, 60) + '...' : toolUse.input.command as string} query={searchQuery} /></>
+              : <>$ {(toolUse.input.command as string).length > 60 ? (toolUse.input.command as string).slice(0, 60) + '...' : toolUse.input.command as string}</>}
           </span>
         )}
         {isError && (

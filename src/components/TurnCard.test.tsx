@@ -148,7 +148,7 @@ describe('TurnCard', () => {
   it('should render SVG text icon when turn has text content blocks', () => {
     const turn = makeTurn([makeAssistantRecord()])
     const { container } = render(<TurnCard turn={turn} index={0} />)
-    const svgIcons = container.querySelectorAll('svg[title="Text content"]')
+    const svgIcons = container.querySelectorAll('svg[aria-label="Text content"]')
     expect(svgIcons.length).toBe(1)
   })
 

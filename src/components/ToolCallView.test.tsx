@@ -131,4 +131,24 @@ describe('ToolCallView', () => {
 
     expect(screen.getByText('▼')).toBeInTheDocument()
   })
+
+  it('should highlight file path with mark element when searchQuery matches', () => {
+    const toolUse = makeToolUse({ input: { file_path: '/src/main.ts' } })
+    const { container } = render(
+      <ToolCallView toolUse={toolUse} toolResult={makeToolResult()} searchQuery="main" />,
+    )
+    const marks = container.querySelectorAll('mark')
+    expect(marks.length).toBe(1)
+    expect(marks[0].textContent).toBe('main')
+  })
+
+  it('should highlight command preview with mark element when searchQuery matches', () => {
+    const toolUse = makeToolUse({ name: 'Bash', input: { command: 'npm test' } })
+    const { container } = render(
+      <ToolCallView toolUse={toolUse} toolResult={makeToolResult()} searchQuery="test" />,
+    )
+    const marks = container.querySelectorAll('mark')
+    expect(marks.length).toBe(1)
+    expect(marks[0].textContent).toBe('test')
+  })
 })
