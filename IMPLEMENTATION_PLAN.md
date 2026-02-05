@@ -22,7 +22,7 @@ All 11 phases are fully implemented and verified against specs:
 - [x] Phase 10: Search & Filtering
 - [x] Phase 11: Polish & Integration
 
-**Current version:** v0.0.34 — 459 tests, all passing. Full spec compliance audit completed.
+**Current version:** v0.0.35 — 476 tests, all passing. Full spec compliance audit completed.
 
 ---
 
@@ -72,6 +72,7 @@ All 11 phases are fully implemented and verified against specs:
 - `CodeBlock` tests mock `@/utils/highlighter.ts` with a controllable promise — tests can either verify the pre-highlight fallback state or resolve the promise with `act()` to test the highlighted state
 - `DarkModeToggle` tests mock the `useDarkMode` hook to isolate component behavior from theme state logic
 - `SessionHeader` tests mock `DarkModeToggle` to avoid hook dependency chain
+- `App.tsx` integration tests mock `react-markdown`, `CodeBlock`, and `DarkModeToggle`, use `localStorage.clear()` in `beforeEach`, and test the full paste→parse→render→reset flow; `waitFor` is needed because `useStreamingParse` processes batches asynchronously via `setTimeout` yields
 
 ### Vitest 3.x Mock Typing
 - `vi.fn()` generics changed in Vitest 3.x: use `vi.fn<Signature>()` not `vi.fn<[Args], Return>()`
