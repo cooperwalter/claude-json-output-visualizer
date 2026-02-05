@@ -56,6 +56,20 @@ export function MessageDetail({ turn, searchQuery }: MessageDetailProps) {
       )}
 
       <div className="group/actions flex items-center gap-2 pt-2 border-t border-gray-100 dark:border-gray-700">
+        <button
+          onClick={() => setShowRawJson(!showRawJson)}
+          aria-expanded={showRawJson}
+          className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+        >
+          {showRawJson ? 'Hide' : 'Show'} Raw JSON
+        </button>
+        <button
+          onClick={() => setShowMetadata(!showMetadata)}
+          aria-expanded={showMetadata}
+          className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+        >
+          {showMetadata ? 'Hide' : 'Show'} Metadata
+        </button>
         {usage && (
           <button
             onClick={() => setShowTokenUsage(!showTokenUsage)}
@@ -65,20 +79,6 @@ export function MessageDetail({ turn, searchQuery }: MessageDetailProps) {
             {showTokenUsage ? 'Hide' : 'Show'} Token Usage
           </button>
         )}
-        <button
-          onClick={() => setShowMetadata(!showMetadata)}
-          aria-expanded={showMetadata}
-          className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
-        >
-          {showMetadata ? 'Hide' : 'Show'} Metadata
-        </button>
-        <button
-          onClick={() => setShowRawJson(!showRawJson)}
-          aria-expanded={showRawJson}
-          className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
-        >
-          {showRawJson ? 'Hide' : 'Show'} Raw JSON
-        </button>
         <button
           onClick={() => {
             const text = turn.contentBlocks
@@ -95,8 +95,18 @@ export function MessageDetail({ turn, searchQuery }: MessageDetailProps) {
         </button>
       </div>
 
-      {showTokenUsage && usage && (
-        <TokenUsageDetail usage={usage} className="text-xs gap-y-1 pl-4" />
+      {showRawJson && (
+        <div className="relative group/json">
+          <CodeBlock code={JSON.stringify(turn.records, null, 2)} lang="json" />
+          <button
+            onClick={() => navigator.clipboard.writeText(JSON.stringify(turn.records, null, 2))}
+            aria-label="Copy raw JSON"
+            title="Copy JSON"
+            className="absolute top-2 right-2 z-10 text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 bg-white dark:bg-gray-800 p-1.5 rounded border border-gray-200 dark:border-gray-600 opacity-0 group-hover/json:opacity-100 focus:opacity-100 transition-opacity"
+          >
+            <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="5" width="9" height="9" rx="1" /><path d="M5 11H3.5A1.5 1.5 0 012 9.5v-7A1.5 1.5 0 013.5 1h7A1.5 1.5 0 0112 2.5V5" /></svg>
+          </button>
+        </div>
       )}
 
       {showMetadata && (
@@ -112,18 +122,8 @@ export function MessageDetail({ turn, searchQuery }: MessageDetailProps) {
         </div>
       )}
 
-      {showRawJson && (
-        <div className="relative group/json">
-          <CodeBlock code={JSON.stringify(turn.records, null, 2)} lang="json" />
-          <button
-            onClick={() => navigator.clipboard.writeText(JSON.stringify(turn.records, null, 2))}
-            aria-label="Copy raw JSON"
-            title="Copy JSON"
-            className="absolute top-2 right-2 z-10 text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 bg-white dark:bg-gray-800 p-1.5 rounded border border-gray-200 dark:border-gray-600 opacity-0 group-hover/json:opacity-100 focus:opacity-100 transition-opacity"
-          >
-            <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="5" width="9" height="9" rx="1" /><path d="M5 11H3.5A1.5 1.5 0 012 9.5v-7A1.5 1.5 0 013.5 1h7A1.5 1.5 0 0112 2.5V5" /></svg>
-          </button>
-        </div>
+      {showTokenUsage && usage && (
+        <TokenUsageDetail usage={usage} className="text-xs gap-y-1 pl-4" />
       )}
     </div>
   )

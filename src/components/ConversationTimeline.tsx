@@ -128,7 +128,7 @@ export function ConversationTimeline({
   }
 
   return (
-    <div ref={containerRef} className="max-w-4xl mx-auto px-4 py-6 space-y-3" role="feed" aria-label="Conversation messages">
+    <div ref={containerRef} className="max-w-4xl mx-auto px-4 py-6 space-y-3 outline-none" role="feed" aria-label="Conversation messages" tabIndex={-1}>
       {turns.map((turn, index) => (
         <TurnCard
           key={turn.messageId}

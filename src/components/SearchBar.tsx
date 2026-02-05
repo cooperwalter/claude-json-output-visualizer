@@ -32,6 +32,8 @@ export function SearchBar({
       if (e.key === 'Escape' && isActive) {
         onClear()
         inputRef.current?.blur()
+        const timeline = document.querySelector<HTMLElement>('[role="feed"]')
+        timeline?.focus()
       }
     },
     [isActive, onClear],

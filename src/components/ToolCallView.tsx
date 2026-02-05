@@ -118,7 +118,7 @@ export function ToolCallView({ toolUse, toolResult, toolResultMeta, searchQuery 
             <summary className="cursor-pointer text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
               Input Parameters
             </summary>
-            <div className="relative">
+            <div className="relative group/input">
               <pre className="mt-1 font-mono bg-white dark:bg-gray-900 rounded p-2 overflow-x-auto text-gray-700 dark:text-gray-300">
                 {searchQuery
                   ? <HighlightedText text={JSON.stringify(toolUse.input, null, 2)} query={searchQuery} />
@@ -131,7 +131,7 @@ export function ToolCallView({ toolUse, toolResult, toolResultMeta, searchQuery 
                 }}
                 aria-label="Copy input parameters"
                 title="Copy input"
-                className="absolute top-2 right-2 opacity-0 hover:opacity-100 focus:opacity-100 transition-opacity text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 bg-white dark:bg-gray-800 p-1 rounded border border-gray-200 dark:border-gray-600"
+                className="absolute top-2 right-2 opacity-0 group-hover/input:opacity-100 focus:opacity-100 transition-opacity text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 bg-white dark:bg-gray-800 p-1 rounded border border-gray-200 dark:border-gray-600"
               >
                 <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="5" width="9" height="9" rx="1" /><path d="M5 11H3.5A1.5 1.5 0 012 9.5v-7A1.5 1.5 0 013.5 1h7A1.5 1.5 0 0112 2.5V5" /></svg>
               </button>
