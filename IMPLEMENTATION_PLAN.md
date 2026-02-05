@@ -53,6 +53,24 @@ All 11 phases are fully implemented and verified against specs:
 - TaskResult tests mock `ConversationContext` to provide `IndexMaps`
 - Vitest requires separate `vitest.config.ts` with `jsdom` environment
 
+### CodeBlock Line Numbers
+- `CodeBlock` accepts optional `showLineNumbers` and `startLine` props for gutter display
+- Line number gutter is rendered as a separate column alongside the syntax-highlighted code
+- Works with both Shiki-highlighted HTML and plain `<pre>` fallback
+- Only `ReadResult` enables line numbers — other tools (Bash, Edit, Raw JSON) do not need them
+- `ReadResult` passes `startLine` from `meta.file.startLine` so partial file reads show correct line offsets
+
 ### Known Limitations (Intentional)
 - Search highlighting does not apply inside code blocks within markdown (would conflict with shiki styling)
 - Build produces large chunks from Shiki language grammars (code-split via dynamic imports)
+
+---
+
+## Spec Compliance Audit (v0.0.20)
+
+Full audit of all 9 spec files against the implementation. Below are remaining minor gaps not yet addressed:
+
+### Low Priority / Cosmetic
+- Bash tool results do not differentiate stdout vs stderr (spec line 42: "Command shown as code block + stdout/stderr output") — the JSONL data format does not separate them
+- DefaultResult shows input in a collapsible `<details>` while ToolCallView also has a collapsible input section (minor redundancy)
+- MessageDetail uses button toggles for Raw JSON and Metadata sections while Token Usage uses `<details>` (inconsistent pattern, both functionally equivalent)

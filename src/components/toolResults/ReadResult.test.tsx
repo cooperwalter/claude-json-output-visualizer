@@ -4,7 +4,11 @@ import { ReadResult } from './ReadResult.tsx'
 import type { ToolUseContentBlock, ToolResultBlock, ToolUseResultMeta } from '@/model/types.ts'
 
 vi.mock('@/components/CodeBlock.tsx', () => ({
-  CodeBlock: ({ code }: { code: string }) => <pre data-testid="code-block">{code}</pre>,
+  CodeBlock: ({ code, showLineNumbers, startLine }: { code: string; showLineNumbers?: boolean; startLine?: number }) => (
+    <pre data-testid="code-block" data-show-line-numbers={showLineNumbers ? 'true' : undefined} data-start-line={startLine}>
+      {code}
+    </pre>
+  ),
 }))
 
 vi.mock('@/utils/highlighter.ts', () => ({
@@ -102,5 +106,34 @@ describe('ReadResult', () => {
       />,
     )
     expect(screen.getByText('/fallback/path.ts')).toBeInTheDocument()
+  })
+
+  it('passes showLineNumbers and startLine to CodeBlock', () => {
+    render(
+      <ReadResult
+        toolUse={makeToolUse({ file_path: '/src/main.ts' })}
+        toolResult={makeToolResult('line one\nline two')}
+      />,
+    )
+    const codeBlock = screen.getByTestId('code-block')
+    expect(codeBlock).toHaveAttribute('data-show-line-numbers', 'true')
+    expect(codeBlock).toHaveAttribute('data-start-line', '1')
+  })
+
+  it('passes correct startLine from meta to CodeBlock', () => {
+    const meta: ToolUseResultMeta = {
+      type: 'text',
+      file: { filePath: '/src/app.ts', content: 'code', numLines: 20, startLine: 50, totalLines: 100 },
+    }
+    render(
+      <ReadResult
+        toolUse={makeToolUse({ file_path: '/src/app.ts' })}
+        toolResult={makeToolResult('code')}
+        meta={meta}
+      />,
+    )
+    const codeBlock = screen.getByTestId('code-block')
+    expect(codeBlock).toHaveAttribute('data-show-line-numbers', 'true')
+    expect(codeBlock).toHaveAttribute('data-start-line', '50')
   })
 })

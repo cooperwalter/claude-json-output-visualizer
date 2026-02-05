@@ -105,7 +105,8 @@ describe('TaskResult', () => {
     expect(screen.getByText('Agent found 3 files')).toBeInTheDocument()
   })
 
-  it('renders nested sub-agent timeline when sub-agent records exist', () => {
+  it('renders nested sub-agent timeline when sub-agent records exist and expanded', async () => {
+    const user = userEvent.setup()
     const subRecord = makeSubAgentRecord('tu_task_1')
     const byParentToolUseId = new Map([['tu_task_1', [subRecord]]])
 
@@ -117,7 +118,25 @@ describe('TaskResult', () => {
       { byParentToolUseId },
     )
     expect(screen.getByText(/sub-agent conversation/)).toBeInTheDocument()
+    expect(screen.queryByText('Sub-agent response')).not.toBeInTheDocument()
+
+    await user.click(screen.getByText(/Show sub-agent conversation/))
     expect(screen.getByText('Sub-agent response')).toBeInTheDocument()
+  })
+
+  it('defaults sub-agent timeline to collapsed per progressive disclosure spec', () => {
+    const subRecord = makeSubAgentRecord('tu_task_1')
+    const byParentToolUseId = new Map([['tu_task_1', [subRecord]]])
+
+    renderWithContext(
+      <TaskResult
+        toolUse={makeToolUse({ subagent_type: 'Explore' })}
+        toolResult={makeToolResult('done')}
+      />,
+      { byParentToolUseId },
+    )
+    expect(screen.getByText(/Show sub-agent conversation/)).toBeInTheDocument()
+    expect(screen.queryByText('Sub-agent response')).not.toBeInTheDocument()
   })
 
   it('renders metadata chips when meta has duration, tokens, tool count, and status', async () => {

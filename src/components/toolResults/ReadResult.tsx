@@ -32,7 +32,7 @@ export function ReadResult({ toolUse, toolResult, meta, searchQuery }: ReadResul
       )}
       {searchQuery
         ? <pre className="text-xs font-mono rounded p-3 overflow-x-auto max-h-96 bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-300"><HighlightedText text={toolResult.content} query={searchQuery} /></pre>
-        : <CodeBlock code={toolResult.content} lang={lang} />}
+        : <CodeBlock code={toolResult.content} lang={lang} showLineNumbers startLine={startLine} />}
     </div>
   )
 }

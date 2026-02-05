@@ -15,7 +15,7 @@ type TaskResultProps = {
 
 export function TaskResult({ toolUse, toolResult, meta, searchQuery }: TaskResultProps) {
   const { state } = useConversation()
-  const [showTimeline, setShowTimeline] = useState(true)
+  const [showTimeline, setShowTimeline] = useState(false)
   const [showMetadata, setShowMetadata] = useState(false)
 
   const subagentType = toolUse.input.subagent_type as string | undefined
