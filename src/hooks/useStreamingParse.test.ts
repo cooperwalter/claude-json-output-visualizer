@@ -1,5 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
+import type { Dispatch } from 'react'
 import { useStreamingParse } from './useStreamingParse.ts'
 import type { AppAction, SessionMeta } from './useAppState.ts'
 
@@ -36,11 +37,15 @@ const testMeta: SessionMeta = {
   loadedAt: '2025-01-01T00:00:00.000Z',
 }
 
+function callArgs(dispatch: Mock<Dispatch<AppAction>>): AppAction[] {
+  return dispatch.mock.calls.map((c: [AppAction]) => c[0])
+}
+
 describe('useStreamingParse', () => {
-  let dispatch: ReturnType<typeof vi.fn<[AppAction], void>>
+  let dispatch: Mock<Dispatch<AppAction>>
 
   beforeEach(() => {
-    dispatch = vi.fn<[AppAction], void>()
+    dispatch = vi.fn<Dispatch<AppAction>>()
   })
 
   describe('parseText', () => {
@@ -92,13 +97,9 @@ describe('useStreamingParse', () => {
       })
 
       expect(totalRecords!).toBe(2)
-      const batchCalls = dispatch.mock.calls.filter(
-        (c) => c[0].type === 'RECORDS_BATCH',
-      )
-      const totalSkipped = batchCalls.reduce(
-        (sum, c) => sum + (c[0] as { type: 'RECORDS_BATCH'; skipped: number }).skipped,
-        0,
-      )
+      const actions = callArgs(dispatch)
+      const batchActions = actions.filter((a): a is Extract<AppAction, { type: 'RECORDS_BATCH' }> => a.type === 'RECORDS_BATCH')
+      const totalSkipped = batchActions.reduce((sum, a) => sum + a.skipped, 0)
       expect(totalSkipped).toBe(2)
     })
 
@@ -112,13 +113,9 @@ describe('useStreamingParse', () => {
       })
 
       expect(totalRecords!).toBe(2)
-      const batchCalls = dispatch.mock.calls.filter(
-        (c) => c[0].type === 'RECORDS_BATCH',
-      )
-      const totalSkipped = batchCalls.reduce(
-        (sum, c) => sum + (c[0] as { type: 'RECORDS_BATCH'; skipped: number }).skipped,
-        0,
-      )
+      const actions = callArgs(dispatch)
+      const batchActions = actions.filter((a): a is Extract<AppAction, { type: 'RECORDS_BATCH' }> => a.type === 'RECORDS_BATCH')
+      const totalSkipped = batchActions.reduce((sum, a) => sum + a.skipped, 0)
       expect(totalSkipped).toBe(0)
     })
 
@@ -171,12 +168,10 @@ describe('useStreamingParse', () => {
         await result.current.parseText(lines, testMeta)
       })
 
-      const batchCalls = dispatch.mock.calls.filter(
-        (c) => c[0].type === 'RECORDS_BATCH',
-      )
-      expect(batchCalls.length).toBeGreaterThanOrEqual(2)
-      const firstBatch = batchCalls[0][0] as { type: 'RECORDS_BATCH'; records: unknown[] }
-      expect(firstBatch.records).toHaveLength(50)
+      const actions = callArgs(dispatch)
+      const batchActions = actions.filter((a): a is Extract<AppAction, { type: 'RECORDS_BATCH' }> => a.type === 'RECORDS_BATCH')
+      expect(batchActions.length).toBeGreaterThanOrEqual(2)
+      expect(batchActions[0].records).toHaveLength(50)
     })
 
     it('flushes remaining records as final batch after loop completes', async () => {
@@ -189,12 +184,10 @@ describe('useStreamingParse', () => {
         await result.current.parseText(lines, testMeta)
       })
 
-      const batchCalls = dispatch.mock.calls.filter(
-        (c) => c[0].type === 'RECORDS_BATCH',
-      )
-      expect(batchCalls).toHaveLength(1)
-      const batch = batchCalls[0][0] as { type: 'RECORDS_BATCH'; records: unknown[] }
-      expect(batch.records).toHaveLength(3)
+      const actions = callArgs(dispatch)
+      const batchActions = actions.filter((a): a is Extract<AppAction, { type: 'RECORDS_BATCH' }> => a.type === 'RECORDS_BATCH')
+      expect(batchActions).toHaveLength(1)
+      expect(batchActions[0].records).toHaveLength(3)
     })
   })
 
@@ -235,10 +228,9 @@ describe('useStreamingParse', () => {
 
       await parsePromise
       expect(dispatch).toHaveBeenCalledWith({ type: 'RESET' })
-      const completeCall = dispatch.mock.calls.find(
-        (c) => c[0].type === 'LOAD_COMPLETE',
-      )
-      expect(completeCall).toBeUndefined()
+      const actions = callArgs(dispatch)
+      const completeAction = actions.find((a) => a.type === 'LOAD_COMPLETE')
+      expect(completeAction).toBeUndefined()
     })
   })
 

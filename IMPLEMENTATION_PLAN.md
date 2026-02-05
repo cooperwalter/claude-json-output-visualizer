@@ -61,6 +61,12 @@ All 11 phases are fully implemented and verified against specs:
 - `useStreamingParse` is testable via `renderHook` — the hook returns `parseText`, `stop`, `resume`, `reset` which can be called in `act()` blocks; the mock `dispatch` captures all dispatched actions for assertion
 - `useRecentSessions` relies on `localStorage` — tests use `localStorage.clear()` in `beforeEach` and `vi.spyOn(Storage.prototype, 'setItem')` to simulate quota-exceeded errors
 
+### Vitest 3.x Mock Typing
+- `vi.fn()` generics changed in Vitest 3.x: use `vi.fn<Signature>()` not `vi.fn<[Args], Return>()`
+- For React dispatch mocks: `vi.fn<Dispatch<AppAction>>()` with type `Mock<Dispatch<AppAction>>`
+- Access `.mock.calls` via `Mock<T>` type, not `ReturnType<typeof vi.fn<...>>`
+- Use `Extract<UnionType, { type: 'discriminant' }>` to narrow discriminated unions in filter callbacks
+
 ### CodeBlock Line Numbers
 - `CodeBlock` accepts optional `showLineNumbers` and `startLine` props for gutter display
 - Line number gutter is rendered as a separate column alongside the syntax-highlighted code
@@ -82,6 +88,9 @@ All 11 phases are fully implemented and verified against specs:
 ## Spec Compliance Audit
 
 Full audit of all 9 spec files completed. All spec requirements fully implemented.
+
+### Resolved in v0.0.31
+- Fixed `useStreamingParse.test.ts` build failure — Vitest 3.x changed `vi.fn()` generics from `vi.fn<[Args], Return>()` to `vi.fn<Signature>()`, causing 12 TypeScript errors; updated mock typing to use `Mock<Dispatch<AppAction>>` and replaced raw `.mock.calls` filter callbacks with typed `callArgs()` helper using `Extract<AppAction, { type: 'RECORDS_BATCH' }>` discriminated union narrowing
 
 ### Resolved in v0.0.30
 - Added 138 new tests across 8 previously untested files, bringing total from 203 to 341
